@@ -1,41 +1,49 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchServices } from '../services/api.client.js';
+import { getTenant } from '../services/demo-data.js';
 
-interface ServiceVM {
-  id: string;
-  name: string;
-  durationMinutes: number;
-  priceVnd: number;
-  category?: string;
-}
+const fmtVnd = (n: number) => n.toLocaleString('vi-VN') + ' ₫';
 
 export function SelectServicePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [services, setServices] = useState<ServiceVM[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!slug) return;
-    fetchServices(slug)
-      .then((data) => setServices(data))
-      .finally(() => setLoading(false));
-  }, [slug]);
-
-  if (loading) return <div>Đang tải dịch vụ…</div>;
+  const tenant = getTenant(slug);
 
   return (
-    <div className="page">
-      <h2>Chọn dịch vụ</h2>
-      <ul className="service-list">
-        {services.map((s) => (
-          <li key={s.id} onClick={() => navigate(`/tenants/${slug}/slot/${s.id}`)}>
-            <strong>{s.name}</strong>
-            <span>{s.durationMinutes} phút · {(s.priceVnd / 1000).toFixed(0)}k</span>
-          </li>
+    <div>
+      <div className="app-bar">
+        <button className="back-btn" onClick={() => navigate(-1)}>←</button>
+        <h1>Chọn dịch vụ</h1>
+      </div>
+
+      <div className="page">
+        <p style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 12 }}>
+          {tenant.name} · {tenant.services.length} dịch vụ
+        </p>
+
+        {tenant.services.map((s) => (
+          <div
+            key={s.id}
+            className="service-item"
+            onClick={() => navigate(`/tenants/${slug}/slot/${s.id}`)}
+          >
+            <div className="info">
+              <div className="name">{s.name}</div>
+              <div className="meta">{s.category} · {s.durationMinutes} phút</div>
+              {s.description && (
+                <div className="meta" style={{ marginTop: 4 }}>{s.description}</div>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="price">{fmtVnd(s.priceVnd)}</div>
+              {s.depositPeakVnd > 0 && (
+                <div className="meta" style={{ marginTop: 2, fontSize: 11 }}>
+                  Cọc cao điểm: {fmtVnd(s.depositPeakVnd)}
+                </div>
+              )}
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
