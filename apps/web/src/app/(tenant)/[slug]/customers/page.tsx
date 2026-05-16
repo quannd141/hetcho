@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { TenantShell } from '../_components/tenant-shell';
+import { EmptyState } from '../_components/empty-state';
 import { demoCustomers } from '../_lib/demo-catalog';
 
-interface PageProps { params: { slug: string } }
+interface PageProps { params: { slug: string }; searchParams: { empty?: string } }
 
 const fmtVnd = (n: number) => n.toLocaleString('vi-VN') + ' ₫';
 
@@ -18,10 +19,29 @@ const TIER_LABEL: Record<string, string> = {
   normal: 'Normal',
 };
 
-export default function CustomersPage({ params }: PageProps) {
-  const customers = demoCustomers(params.slug);
+export default function CustomersPage({ params, searchParams }: PageProps) {
+  const customers = searchParams.empty === '1' ? [] : demoCustomers(params.slug);
   const vip = customers.filter((c) => c.tier === 'vip').length;
   const cip = customers.filter((c) => c.tier === 'cip').length;
+
+  if (customers.length === 0) {
+    return (
+      <TenantShell slug={params.slug} active="customers">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Khách hàng (0)</h1>
+          <p className="text-sm text-slate-500 mt-1">Khách tự động được tạo khi đặt qua Mini App hoặc walk-in.</p>
+        </div>
+        <EmptyState
+          icon="👥"
+          title="Chưa có khách hàng nào"
+          description="Khách hàng sẽ tự động thêm vào danh sách này khi đặt qua Zalo Mini App, web booking, hoặc khi anh thêm walk-in tại quầy."
+          primaryAction={{ label: '+ Thêm walk-in', href: `/${params.slug}/dashboard/walk-in` }}
+          secondaryAction={{ label: 'Chia sẻ link đặt lịch', href: `/${params.slug}/marketing` }}
+          hint="Sau buổi đầu của khách, hệ thống tự gắn tier Normal / CIP / VIP theo số lượt + chi tiêu."
+        />
+      </TenantShell>
+    );
+  }
 
   return (
     <TenantShell slug={params.slug} active="customers">

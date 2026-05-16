@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TenantShell } from '../../../_components/tenant-shell';
+import { ConfirmDialog } from '../../../_components/confirm-dialog';
 import { demoServices } from '../../../_lib/demo-catalog';
 
 interface PageProps { params: { slug: string; id: string } }
@@ -63,9 +64,18 @@ export default function EditServicePage({ params }: PageProps) {
           </label>
 
           <div className="flex gap-3 pt-2">
-            <button type="button" className="rounded-md border border-rose-300 text-rose-600 px-4 py-2 text-sm font-medium hover:bg-rose-50">
-              Xoá
-            </button>
+            <ConfirmDialog
+              variant="danger"
+              title={`Xoá dịch vụ "${service.name}"?`}
+              description="Khách hàng sẽ không đặt được dịch vụ này nữa. Booking trong quá khứ vẫn được giữ. Hành động không hoàn tác được."
+              confirmLabel="Xoá vĩnh viễn"
+              requireTypeToConfirm="XOA"
+              trigger={
+                <button type="button" className="rounded-md border border-rose-300 text-rose-600 px-4 py-2 text-sm font-medium hover:bg-rose-50">
+                  Xoá
+                </button>
+              }
+            />
             <Link href={`/${params.slug}/services`} className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">Huỷ</Link>
             <button type="submit" className="flex-1 rounded-md bg-brand-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-700">
               Lưu thay đổi
