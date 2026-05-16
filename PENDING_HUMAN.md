@@ -111,4 +111,13 @@
 
 ---
 
-**Last updated**: 2026-05-16 by night-shift agent
+**Last updated**: 2026-05-16 by night-shift agent (Run #2 — Sprint 1 partial)
+
+---
+
+## 📌 Run #2 update (2026-05-16)
+
+- Sprint 1 phần **mock-doable** đã commit ở branch `night-shift/sprint-1-20260516`.
+- Vẫn cần founder xử lý PH-001 → PH-005 trước khi Sprint 1 real-wire + Sprint 2.
+- Đã add 5 routes web (login/signup/onboarding/dashboard/services), 3 demo tenants seed, +16 tests.
+- Cumulative: 57 tests pass kỳ vọng sau `pnpm test`.
