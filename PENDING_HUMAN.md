@@ -111,7 +111,7 @@
 
 ---
 
-**Last updated**: 2026-05-16 by night-shift agent (Run #2 — Sprint 1 partial)
+**Last updated**: 2026-05-16 by night-shift agent (Run #3 — Sprint 2 partial)
 
 ---
 
@@ -121,3 +121,16 @@
 - Vẫn cần founder xử lý PH-001 → PH-005 trước khi Sprint 1 real-wire + Sprint 2.
 - Đã add 5 routes web (login/signup/onboarding/dashboard/services), 3 demo tenants seed, +16 tests.
 - Cumulative: 57 tests pass kỳ vọng sau `pnpm test`.
+
+---
+
+## 📌 Run #3 update (2026-05-16, Sprint 2)
+
+- Sprint 2 phần **mock-doable** đã commit ở branch `night-shift/sprint-2-20260516`.
+- Booking state machine hoàn chỉnh: 5 transition use cases + webhook handler + 1 query + 1 walk-in.
+- RealtimeBroadcaster port + Mock pub/sub (tenant-scoped) wire vào 7 use cases.
+- Dashboard day-view grid (group by staff, status pills, peak badge) + walk-in form skeleton.
+- Full lifecycle integration test (pending → confirmed → checked_in → in_service → completed) PASS.
+- Cumulative: **88 tests** pass kỳ vọng sau `pnpm test`.
+- **Blockers vẫn**: PH-001 (Supabase) là blocker lớn nhất — chặn real-wire dashboard + realtime + Sprint 1 auth.
+- **Có thể start Sprint 3 mock-mode** (Mini App với mock zmp-sdk) mà không cần PH-002 ngay, nhưng PH-002 phải xong trước M1 (T9).

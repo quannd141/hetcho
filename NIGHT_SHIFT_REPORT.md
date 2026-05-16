@@ -1,9 +1,11 @@
-# 🌙 Night Shift Report — Run #2 (Sprint 1 partial, 2026-05-16)
+# 🌙 Night Shift Report — Run #3 (Sprint 2, 2026-05-16)
 
-> **Note**: Sprint 0 báo cáo lưu ở `NIGHT_SHIFT_REPORT.sprint-0.md`. File này là Sprint 1 partial.
+> Sprint 0 → `NIGHT_SHIFT_REPORT.sprint-0.md`
+> Sprint 1 → `NIGHT_SHIFT_REPORT.sprint-1.md`
+> Sprint 2 → file này
 
-**Sprint**: 1 (Tenant + Auth — chỉ phần mock-doable)
-**Branch**: `night-shift/sprint-1-20260516` (off `night-shift/sprint-0-20260516`)
+**Sprint**: 2 (Booking Core + Dashboard skeleton — phần mock-doable)
+**Branch**: `night-shift/sprint-2-20260516` (off `night-shift/sprint-1-20260516`)
 **Mode**: ✅ NIGHT_SHIFT_MODE — mock + local only
 **Date**: 2026-05-16
 
@@ -14,9 +16,8 @@
 ✅ **Done**: 6 / 6 doable stories
 🟡 **Partial**: 0
 ⏸️ **Skipped** (BLOCKED by PENDING_HUMAN):
-- US-F2-001 wire real Supabase Auth (PH-001)
-- US-F2-002 dashboard backed by real DB (PH-001)
-- US-F2-005 Google Calendar OAuth (PH-007)
+- US-F2-002 real-wire dashboard backed by Postgres (PH-001)
+- US-F3-002 real Supabase Realtime CDC subscription (PH-001)
 🚫 **Violations**: 0
 
 ---
@@ -25,42 +26,69 @@
 
 | Story | Files | Tests |
 |-------|-------|-------|
-| S1-01 In-memory repos (Tenant/Service/Customer/Staff) | 6 | 4 ✅ |
-| S1-02 Onboarding use cases (CreateTenant + AddService + AddStaff) | 5 | 5 ✅ |
-| S1-03 Seed builder 3 demo tenants | 2 | — |
-| S1-04 Cross-tenant isolation integration test | 1 | 7 ✅ |
-| S1-05 Web onboarding wizard + dashboard skeleton | 5 | — (UI, Playwright Sprint 7) |
-| S1-06 PENDING_HUMAN update + Report | 2 | — |
+| S2-01 Transition use cases (check-in / start / complete / no-show / mark-deposit-paid) | 6 (5 src + 1 test) | 12 ✅ |
+| S2-02 ListBookingsForDate query + projection | 2 | 3 ✅ |
+| S2-03 RealtimeBroadcaster port + MockRealtimeBroadcaster + wired into 7 use cases | 4 | 5 ✅ |
+| S2-04 WalkInBookingUseCase (owner adds walk-in customer) | 2 | 5 ✅ |
+| S2-05 Web dashboard day-view grid + walk-in form skeleton | 4 web pages/components | — (UI) |
+| S2-06 Full booking lifecycle integration test (wire mocks end-to-end) | 1 | 6 ✅ |
+| S2-07 Report + PENDING_HUMAN refresh | 2 | — |
 
-**Total**: ~20 files, **+16 unit/integration tests**.
-**Cumulative**: 41 (Sprint 0) + 16 (Sprint 1) = **57 tests**.
+**Total Sprint 2**: ~20 files, **+31 unit/integration tests**.
+**Cumulative**: 41 (S0) + 16 (S1) + 31 (S2) = **88 tests**.
 
 ---
 
 ## Local app sau khi `pnpm install`
 
 ```bash
-pnpm test               # 57 tests
-pnpm --filter @hetcho/web dev    # http://localhost:3000
-# /login              magic link stub
-# /signup             tenant signup form
-# /onboarding         5-step wizard
-# /[slug]/dashboard   stat cards + lich placeholder
-# /[slug]/services    services table empty state
-pnpm --filter @hetcho/mini-app dev    # http://localhost:3001
+pnpm test                                       # 88 tests
+pnpm --filter @hetcho/web dev                   # http://localhost:3000
+# /demo/dashboard                  → 5 demo bookings + day/week toggle + stat cards
+# /demo/dashboard?view=week        → placeholder
+# /demo/dashboard/walk-in          → form thêm khách walk-in
+# /salon-hang/dashboard            → 5 bookings với staff "Stylist Tú / Ngọc"
+# /mai-spa/dashboard               → 5 bookings spa (90min slot, KTV Mai/Hân)
+# /linh-nail/dashboard             → 5 bookings nail (KTV Linh)
 ```
 
 ---
 
-## 🟡 Decisions tôi tự quyết (verify trong PENDING_VERIFY.md)
+## Architecture additions
+
+### New port — `RealtimeBroadcaster`
+- Location: `packages/application/src/booking/realtime-broadcaster.ts`
+- 7 event types: `booking.created/confirmed/checked_in/started/completed/cancelled/no_show`
+- Optional dep — backward compatible
+- Tenant-scoped channels (no cross-tenant leak — verified by test)
+
+### New use cases (all in `packages/application/src/booking/`)
+- `CheckInBookingUseCase` — confirmed → checked_in
+- `StartServiceUseCase` — checked_in → in_service
+- `CompleteBookingUseCase` — in_service → completed + finalPrice
+- `MarkNoShowUseCase` — confirmed → no_show, deposit forfeited
+- `MarkDepositPaidUseCase` — webhook handler, idempotent
+- `ListBookingsForDateUseCase` — read-side projection cho dashboard
+- `WalkInBookingUseCase` — owner UI flow, no payment / no notification
+
+### Web layer
+- Dashboard layout: stat cards + DayWeekToggle + DayGrid grouped by staff
+- 5 booking statuses rendered with VN labels + colored pills
+- Peak badge highlight
+- Walk-in form with phone regex pattern validator
+
+---
+
+## 🟡 Decisions tôi tự quyết (verify trong PENDING_VERIFY.md sau)
 
 | Decision | Reversibility |
 |----------|---------------|
-| Default cancel policy: 24h refund / 50% fine | ✅ Per-tenant |
-| Spa cancel: 48h / 100% fine — Nail: 12h / 30% | ✅ Per-tenant |
-| Slot: salon/nail 30m, spa 60m | ✅ Per-tenant |
-| Multi-tenancy URL: `/(tenant)/[slug]/*` thay vì subdomain | 🟡 Trung bình |
-| StaffRecord interface ở infra (chưa promote domain) | ✅ Promote khi có business rule |
+| Walk-in customer: hash phone với sha256 + mask `09***1234` | ✅ Có thể đổi thuật toán mask |
+| Realtime channel convention: `tenant:<id>:bookings` | 🟡 Phải đồng bộ FE+BE |
+| Walk-in cho phép 1 phút skew startAt vào quá khứ (clock drift) | ✅ Tune được |
+| BookingEvent shape (type/tenantId/bookingId/occurredAt/payload) | 🟡 Phá compat nếu đổi |
+| Week view chưa implement (placeholder) — sẽ làm sau khi day view validate với 3 tiệm pilot | ✅ |
+| Complete booking trừ deposit khỏi finalPrice → `remainingDueVnd` cho owner thu mặt | ✅ |
 
 ---
 
@@ -68,11 +96,12 @@ pnpm --filter @hetcho/mini-app dev    # http://localhost:3001
 
 | Rule | Status |
 |------|--------|
-| Mock everything | ✅ |
+| Mock everything | ✅ Tất cả 7 events publish qua MockRealtimeBroadcaster |
 | Không push remote | ✅ |
 | Không touch main | ✅ |
 | Không deploy | ✅ |
-| Không gọi DB thật | ✅ |
+| Không gọi DB thật | ✅ In-memory repos |
+| Không gọi VNPay/Zalo thật | ✅ MarkDepositPaidUseCase nhận `gatewayTxnId` từ test |
 | Test trước implement | ✅ |
 | Commit atomic per story | ✅ 6 commits = 6 stories |
 
@@ -80,40 +109,48 @@ pnpm --filter @hetcho/mini-app dev    # http://localhost:3001
 
 ## Khuyến nghị sáng mai
 
-1. **Bootstrap**:
+1. **Bootstrap nếu chưa**:
    ```bash
    bash scripts/bootstrap.sh
-   pnpm test      # 57 tests
+   pnpm test          # kỳ vọng 88 tests
    pnpm typecheck
    pnpm lint
    ```
 
-2. **Browse local routes** (verify UI):
+2. **Browse dashboard 3 personas**:
    ```bash
    pnpm --filter @hetcho/web dev
-   # /login, /signup, /onboarding, /demo/dashboard, /demo/services
+   # http://localhost:3000/salon-hang/dashboard
+   # http://localhost:3000/mai-spa/dashboard
+   # http://localhost:3000/linh-nail/dashboard
    ```
 
-3. **Review 2 night-shift branches**:
+3. **Review 3 night-shift branches**:
    ```bash
    git log night-shift/sprint-0-20260516 --oneline
    git log night-shift/sprint-1-20260516 --oneline
+   git log night-shift/sprint-2-20260516 --oneline
    ```
 
-4. **Bắt đầu PENDING_HUMAN.md** — ưu tiên PH-001 (Supabase) + PH-002 (Zalo OA) song song.
+4. **Critical path tiếp theo** (theo thứ tự ưu tiên):
+   - **PH-001 Supabase** (30 phút) — unblock 3+ stories
+   - **PH-008 Tuyển 3 tiệm pilot** (1-2 tuần outreach) — gate cho M1 Closed Beta
+   - **PH-002 Zalo OA + Mini App** (2-4 giờ KYC) — gate cho Sprint 3 full flow
+   - **PH-003 VNPay sandbox** (1-2 ngày duyệt) — gate cho Sprint 4 (F6 cọc) trùng M1 timing
 
-5. Sau khi unblock → `/night-shift` lần 3 cho Sprint 2 (Core Queue + Dashboard).
+5. **Sprint 3 plan** (Mini App full flow):
+   - US-F1-001/002/003 — Khách qua Zalo Mini App đặt
+   - US-F3-001 — realtime slot availability
+   - Sẽ cần PH-002 (Zalo OA) — có thể start với mock zmp-sdk responses
+
+6. Sau khi unblock → `/night-shift` lần 4 cho Sprint 3 (mock zmp-sdk) hoặc Sprint 1 real-wire (sau khi PH-001 xong).
 
 ---
 
 ## 🧠 Context Checkpoint
 
-- **Estimate context**: 🔴 ~88% — cả phiên đã chạy /project-kickoff + 2 lần /night-shift liên tiếp.
-- **Strongly recommend**: **`/compact` trước khi resume**.
-- **Resume prompt sau compact**:
-  > "Đọc NIGHT_SHIFT_REPORT.md + PENDING_HUMAN.md + docs/implementation-plan.md.
-  >  Sprint 0 + Sprint 1 (mock-doable) đã đóng. Tiếp Sprint 2 trong mock mode hoặc
-  >  resume Sprint 1 real-wire sau khi PH-001 (Supabase) xong."
+- **Estimate context**: 🟠 ~55% sau /compact (Sprint 2 phần lớn dùng tool calls hiệu quả)
+- **Khuyến nghị**: Có thể tiếp tục Sprint 3 mock-mode mà không cần /compact ngay, nhưng safer là /compact lần nữa trước Sprint 3.
 
 ---
 
@@ -129,5 +166,5 @@ pnpm --filter @hetcho/mini-app dev    # http://localhost:3001
 
 ---
 
-_Generated by night-shift skill — Run #2 — 2026-05-16_
+_Generated by night-shift skill — Run #3 — 2026-05-16_
 _HếtChờ — Phát triển bởi Quân Nguyễn — Quality First, Always._
