@@ -1,0 +1,29 @@
+{
+  "name": "@hetcho/mini-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "zmp-cli dev",
+    "build": "zmp-cli build",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "deploy:fake": "echo '[NIGHT-SHIFT] real deploy is BLOCKED — needs Zalo Mini App ID + secret'"
+  },
+  "dependencies": {
+    "@hetcho/shared": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.0",
+    "zmp-sdk": "^1.4.0",
+    "zmp-ui": "^1.6.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0",
+    "zmp-cli": "^1.0.0"
+  }
+}
