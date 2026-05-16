@@ -1,5 +1,6 @@
 import type { CustomerId, ServiceId, StaffId, TenantId, TransactionId } from '@hetcho/shared';
 import type { Service, Tenant, Customer, BookingRepository } from '@hetcho/domain';
+import type { RealtimeBroadcaster } from './realtime-broadcaster.js';
 
 export interface TenantRepository {
   findById(id: TenantId): Promise<Tenant | null>;
@@ -61,6 +62,8 @@ export interface BookingDependencies {
   payment: PaymentGateway;
   notification: NotificationSender;
   audit: AuditLogger;
+  /** Realtime broadcaster — optional (no-op if absent) */
+  broadcaster?: RealtimeBroadcaster;
   /** Allow stub clock in tests */
   now: () => Date;
   /** Generate booking ID */

@@ -40,6 +40,14 @@ export class MarkNoShowUseCase {
       });
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.no_show',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: at,
+      payload: { depositForfeitedVnd },
+    });
+
     return { bookingId: booking.id, depositForfeitedVnd };
   }
 }

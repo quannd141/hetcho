@@ -62,6 +62,14 @@ export class CancelBookingUseCase {
       refundAmountVnd,
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.cancelled',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: cancelAt,
+      payload: { reason: input.reason, refundAmountVnd },
+    });
+
     return { bookingId: booking.id, refundAmountVnd };
   }
 }

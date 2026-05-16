@@ -38,6 +38,13 @@ export class CheckInBookingUseCase {
       });
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.checked_in',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: at,
+    });
+
     return { bookingId: booking.id };
   }
 }

@@ -40,6 +40,15 @@ export class CompleteBookingUseCase {
     });
 
     const remainingDueVnd = booking.toJSON().finalPriceVnd ?? 0;
+
+    await this.deps.broadcaster?.publish({
+      type: 'booking.completed',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: at,
+      payload: { finalPriceVnd: input.finalPriceVnd, remainingDueVnd },
+    });
+
     return { bookingId: booking.id, remainingDueVnd };
   }
 }

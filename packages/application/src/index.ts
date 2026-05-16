@@ -6,6 +6,7 @@ export * from './booking/complete-booking.use-case.js';
 export * from './booking/mark-no-show.use-case.js';
 export * from './booking/mark-deposit-paid.use-case.js';
 export * from './booking/list-bookings-for-date.use-case.js';
+export * from './booking/realtime-broadcaster.js';
 export * from './booking/ports.js';
 export * from './tenant/create-tenant.use-case.js';
 export * from './tenant/add-service.use-case.js';

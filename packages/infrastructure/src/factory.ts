@@ -1,6 +1,7 @@
 import { MockAuditLogger } from './mock/mock-audit-logger.js';
 import { MockNotificationSender } from './mock/mock-notification-sender.js';
 import { MockPaymentGateway } from './mock/mock-payment-gateway.js';
+import { MockRealtimeBroadcaster } from './mock/mock-realtime-broadcaster.js';
 import { InMemoryBookingRepository } from './mock/in-memory-booking-repository.js';
 
 /**
@@ -16,6 +17,7 @@ export interface InfrastructureBundle {
   payment: MockPaymentGateway;
   notification: MockNotificationSender;
   audit: MockAuditLogger;
+  broadcaster: MockRealtimeBroadcaster;
   bookings: InMemoryBookingRepository;
 }
 
@@ -33,6 +35,7 @@ export function buildInfrastructure(): InfrastructureBundle {
     payment: new MockPaymentGateway(),
     notification: new MockNotificationSender(),
     audit: new MockAuditLogger(),
+    broadcaster: new MockRealtimeBroadcaster(),
     bookings: new InMemoryBookingRepository(),
   };
 }

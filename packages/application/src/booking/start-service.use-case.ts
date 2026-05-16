@@ -36,6 +36,13 @@ export class StartServiceUseCase {
       });
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.started',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: this.deps.now(),
+    });
+
     return { bookingId: booking.id };
   }
 }

@@ -54,6 +54,14 @@ export class MarkDepositPaidUseCase {
       bookingId: booking.id,
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.confirmed',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: at,
+      payload: { amountVnd: input.amountVnd },
+    });
+
     return { bookingId: booking.id, alreadyConfirmed: false };
   }
 }

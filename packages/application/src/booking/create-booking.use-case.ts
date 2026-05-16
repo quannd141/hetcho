@@ -126,6 +126,14 @@ export class CreateBookingUseCase {
       });
     });
 
+    await this.deps.broadcaster?.publish({
+      type: 'booking.created',
+      tenantId: booking.tenantId,
+      bookingId: booking.id,
+      occurredAt: this.deps.now(),
+      payload: { status: booking.status, staffId: input.staffId, startAt: slot.startAt.toISOString() },
+    });
+
     if (depositRequiredVnd > 0) {
       if (!input.returnUrl) {
         throw new ValidationError('returnUrl required for paid booking');
