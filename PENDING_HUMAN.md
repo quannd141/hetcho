@@ -134,3 +134,16 @@
 - Cumulative: **88 tests** pass kỳ vọng sau `pnpm test`.
 - **Blockers vẫn**: PH-001 (Supabase) là blocker lớn nhất — chặn real-wire dashboard + realtime + Sprint 1 auth.
 - **Có thể start Sprint 3 mock-mode** (Mini App với mock zmp-sdk) mà không cần PH-002 ngay, nhưng PH-002 phải xong trước M1 (T9).
+
+---
+
+## 📌 Run #4 update (2026-05-16, UI Demo Dispatch)
+
+**Strategy shift**: Anh Quân yêu cầu Tech Lead dispatch build hết UI với mock data trước khi làm BE.
+
+- Branch `night-shift/ui-demo-20260516` (off sprint-2): **38 routes UI total** (28 web + 8 mini-app + 2 success).
+- **7 commits** UI: onboarding 5 steps, settings 8 sections, services/staff/customers/packages/reports CRUD, marketing (templates + recovery 30/60/90), Mini App full flow với mobile-first CSS + tab bar, landing redesign, public web booking fallback.
+- Không add test (UI test theo plan Sprint 7 với Playwright).
+- **Demo walkthrough**: đọc `UI_DEMO_WALKTHROUGH.md` — có 4 demo paths (~10-15 phút click-through) + 11 điểm cần founder chốt trước BE.
+- **PENDING_HUMAN status unchanged**: PH-001 → PH-005 vẫn là blocker cho BE wire. Founder cần chốt UI demo trước, sau đó resolve PH-001 → khởi động Run #5 (Sprint 1 real-wire).
+- Cumulative: 24 commits, ~150 source files, 88 tests, 4 night-shift branches.
