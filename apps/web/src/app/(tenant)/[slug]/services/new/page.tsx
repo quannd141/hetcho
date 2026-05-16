@@ -1,0 +1,77 @@
+import Link from 'next/link';
+import { TenantShell } from '../../_components/tenant-shell';
+
+interface PageProps { params: { slug: string } }
+
+export default function NewServicePage({ params }: PageProps) {
+  return (
+    <TenantShell slug={params.slug} active="services">
+      <div className="max-w-2xl">
+        <Link href={`/${params.slug}/services`} className="text-sm text-slate-500 hover:underline">← Quay về Dịch vụ</Link>
+        <h1 className="text-2xl font-bold mt-2 mb-6">Thêm dịch vụ mới</h1>
+
+        <form action={`/${params.slug}/services`} method="get" className="space-y-4 bg-white border border-slate-200 rounded-xl p-6">
+          <label className="block">
+            <span className="text-sm font-medium">Tên dịch vụ *</span>
+            <input required name="name" placeholder="VD: Cắt + Gội + Sấy"
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </label>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block">
+              <span className="text-sm font-medium">Danh mục</span>
+              <input name="category" placeholder="VD: Tóc / Skincare / Nail"
+                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium">Thời lượng (phút) *</span>
+              <select required name="duration" defaultValue="60" className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                <option value="30">30 phút</option>
+                <option value="45">45 phút</option>
+                <option value="60">60 phút</option>
+                <option value="90">90 phút</option>
+                <option value="120">120 phút</option>
+                <option value="180">3 giờ</option>
+                <option value="240">4 giờ</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="text-sm font-medium">Giá (VND) *</span>
+            <input required type="number" name="priceVnd" defaultValue={250000} step={10000} min={0}
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </label>
+
+          <fieldset className="border border-slate-200 rounded-lg p-4">
+            <legend className="text-sm font-semibold px-2">Cọc giữ chỗ</legend>
+            <div className="grid grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-sm font-medium">Giờ thường</span>
+                <input type="number" name="depositNormal" defaultValue={0} step={10000} min={0}
+                  className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Giờ cao điểm</span>
+                <input type="number" name="depositPeak" defaultValue={50000} step={10000} min={0}
+                  className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+              </label>
+            </div>
+          </fieldset>
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" defaultChecked />
+            <span className="text-sm">Bán ngay (khách thấy trên Mini App)</span>
+          </label>
+
+          <div className="flex gap-3 pt-2">
+            <Link href={`/${params.slug}/services`} className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">Huỷ</Link>
+            <button type="submit" className="flex-1 rounded-md bg-brand-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-700">
+              Lưu dịch vụ
+            </button>
+          </div>
+        </form>
+      </div>
+    </TenantShell>
+  );
+}

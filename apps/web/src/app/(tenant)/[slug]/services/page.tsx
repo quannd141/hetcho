@@ -1,55 +1,63 @@
 import Link from 'next/link';
+import { TenantShell } from '../_components/tenant-shell';
+import { demoServices } from '../_lib/demo-catalog';
 
-interface PageProps {
-  params: { slug: string };
-}
+interface PageProps { params: { slug: string } }
 
-export default async function ServicesPage({ params }: PageProps) {
+const fmtVnd = (n: number) => n.toLocaleString('vi-VN') + ' ₫';
+
+export default function ServicesPage({ params }: PageProps) {
+  const services = demoServices(params.slug);
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-xl font-bold text-brand-600">HếtChờ</Link>
-            <span className="text-slate-300">|</span>
-            <span className="font-medium">{params.slug} — Dịch vụ</span>
-          </div>
+    <TenantShell slug={params.slug} active="services">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Quản lý dịch vụ ({services.length})</h1>
+          <p className="text-sm text-slate-500 mt-1">Cấu hình dịch vụ + giá + cọc — khách sẽ thấy danh sách này khi đặt qua Mini App.</p>
         </div>
-      </header>
+        <Link href={`/${params.slug}/services/new`} className="rounded-md bg-brand-600 text-white px-4 py-2 text-sm font-medium hover:bg-brand-700">
+          + Thêm dịch vụ
+        </Link>
+      </div>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Quản lý dịch vụ</h1>
-          <Link
-            href={`/${params.slug}/services/new`}
-            className="rounded-md bg-brand-600 px-4 py-2 text-white text-sm font-medium hover:bg-brand-700"
-          >
-            + Thêm dịch vụ
-          </Link>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Tên dịch vụ</th>
-                <th className="px-4 py-3 font-semibold">Thời lượng</th>
-                <th className="px-4 py-3 font-semibold">Giá</th>
-                <th className="px-4 py-3 font-semibold">Cọc thường</th>
-                <th className="px-4 py-3 font-semibold">Cọc cao điểm</th>
-                <th className="px-4 py-3 font-semibold">Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-slate-500">
-                  Chưa có dịch vụ nào. Sprint 1+ wire AddServiceUseCase để fetch + add.
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-left">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Tên dịch vụ</th>
+              <th className="px-4 py-3 font-semibold">Danh mục</th>
+              <th className="px-4 py-3 font-semibold">Thời lượng</th>
+              <th className="px-4 py-3 font-semibold">Giá</th>
+              <th className="px-4 py-3 font-semibold">Cọc thường</th>
+              <th className="px-4 py-3 font-semibold">Cọc cao điểm</th>
+              <th className="px-4 py-3 font-semibold">Trạng thái</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {services.map((s) => (
+              <tr key={s.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium">{s.name}</td>
+                <td className="px-4 py-3 text-slate-500">{s.category}</td>
+                <td className="px-4 py-3">{s.durationMinutes} phút</td>
+                <td className="px-4 py-3 font-mono">{fmtVnd(s.priceVnd)}</td>
+                <td className="px-4 py-3 font-mono text-slate-500">{s.depositNormalVnd === 0 ? '—' : fmtVnd(s.depositNormalVnd)}</td>
+                <td className="px-4 py-3 font-mono text-orange-700">{s.depositPeakVnd === 0 ? '—' : fmtVnd(s.depositPeakVnd)}</td>
+                <td className="px-4 py-3">
+                  {s.isActive ? (
+                    <span className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Đang bán</span>
+                  ) : (
+                    <span className="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded">Tạm tắt</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Link href={`/${params.slug}/services/${s.id}/edit`} className="text-brand-600 hover:underline text-xs">Sửa</Link>
                 </td>
               </tr>
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </main>
+    </TenantShell>
   );
 }
