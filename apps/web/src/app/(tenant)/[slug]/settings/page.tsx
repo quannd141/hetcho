@@ -113,6 +113,18 @@ export default function SettingsPage({ params }: PageProps) {
           </div>
         </Section>
 
+        <Section title="Thông báo" subtitle="Channel + sự kiện + giờ yên tĩnh">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-sm">5 channel · 11 sự kiện</p>
+              <p className="text-xs text-slate-500 mt-1">Cấu hình chi tiết Zalo / SMS / Email / Push cho từng loại thông báo.</p>
+            </div>
+            <a href={`/${params.slug}/settings/notifications`} className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
+              Mở cấu hình chi tiết →
+            </a>
+          </div>
+        </Section>
+
         <Section title="Google Calendar sync" subtitle="Đồng bộ booking 2 chiều — khách đặt = block luôn ở GCal cá nhân">
           <div className="flex items-center justify-between">
             <div>
