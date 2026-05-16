@@ -1,0 +1,33 @@
+{
+  "name": "het-cho",
+  "version": "0.1.0",
+  "private": true,
+  "description": "HếtChờ — Đặt là vào liền. Zero-fee booking SaaS cho tiệm làm đẹp nhỏ ở Việt Nam.",
+  "license": "UNLICENSED",
+  "author": "Quân Nguyễn <quannd141@gmail.com>",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=8.15.0"
+  },
+  "packageManager": "pnpm@8.15.4",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch --parallel",
+    "db:generate": "turbo run db:generate --filter=@hetcho/db",
+    "db:migrate": "turbo run db:migrate --filter=@hetcho/db",
+    "db:seed": "turbo run db:seed --filter=@hetcho/db",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.5",
+    "turbo": "^1.13.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

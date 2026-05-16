@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "incremental": true,
+    "paths": {
+      "@hetcho/shared": ["./packages/shared/src"],
+      "@hetcho/shared/*": ["./packages/shared/src/*"],
+      "@hetcho/domain": ["./packages/domain/src"],
+      "@hetcho/domain/*": ["./packages/domain/src/*"],
+      "@hetcho/application": ["./packages/application/src"],
+      "@hetcho/application/*": ["./packages/application/src/*"],
+      "@hetcho/infrastructure": ["./packages/infrastructure/src"],
+      "@hetcho/infrastructure/*": ["./packages/infrastructure/src/*"],
+      "@hetcho/db": ["./packages/db/src"],
+      "@hetcho/db/*": ["./packages/db/src/*"],
+      "@hetcho/ui": ["./packages/ui/src"],
+      "@hetcho/ui/*": ["./packages/ui/src/*"]
+    }
+  },
+  "exclude": ["**/node_modules", "**/dist", "**/.next", "**/build", "**/coverage"]
+}
