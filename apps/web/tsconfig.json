@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@hetcho/shared": ["../../packages/shared/src"],
+      "@hetcho/domain": ["../../packages/domain/src"],
+      "@hetcho/application": ["../../packages/application/src"],
+      "@hetcho/infrastructure": ["../../packages/infrastructure/src"],
+      "@hetcho/db": ["../../packages/db/src"]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "src/**/*", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
