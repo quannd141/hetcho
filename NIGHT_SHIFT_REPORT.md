@@ -10,15 +10,28 @@
 **Branch**: `night-shift/ui-demo-20260516` (off `night-shift/sprint-2-20260516`)
 **Mode**: ✅ NIGHT_SHIFT_MODE — mock + local only
 **Date**: 2026-05-16
-**Run**: #4
+**Run**: #4 + #4b (build hết missing screens)
 
 ---
 
 ## Summary
 
-✅ **Done**: 11 / 11 UI tasks
+✅ **Done**: 11 / 11 UI tasks (Run #4) + **6 / 6 missing-screen tasks (Run #4b)**
 🚫 **Violations**: 0
 🚫 **Tests added**: 0 (UI test sẽ ở Sprint 7 với Playwright theo plan — không phá quy tắc)
+
+## Run #4b — Missing screens (6 commits)
+
+| Commit | Scope | Files |
+|--------|-------|-------|
+| `da06f0d` (~) | 404/500/error-boundary + loading skeletons | 6 |
+| `e9b6c81` (~) | owner account (profile/password/security/tenants) | 5 |
+| `6caece5` | notification settings detail (channels + DND + matrix) | 2 |
+| `38ad0d3` (~) | empty states + confirm dialog component | 5 |
+| `f31bf12` (~) | Mini App auth flow (Zalo 1-tap + SMS OTP) | 5 |
+| `latest` | super-admin panel (5 pages) | 7 |
+
+**Total routes**: 38 → **60 routes** (44 web + 10 mini-app + 6 admin).
 
 ---
 

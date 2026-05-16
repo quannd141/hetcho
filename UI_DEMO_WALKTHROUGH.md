@@ -85,7 +85,7 @@ http://localhost:3000/salon-hang/book
 
 ---
 
-## 📦 Inventory màn hình (38 routes total)
+## 📦 Inventory màn hình (60 routes total — Run #4b)
 
 ### Web `apps/web` (28 routes)
 
@@ -119,12 +119,27 @@ http://localhost:3000/salon-hang/book
 | `/[slug]/book` | Public booking (không Zalo) | ✅ |
 | `/[slug]/book/success` | Xác nhận đặt thành công | ✅ |
 | `/api/health` | Health check | ✅ |
+| `/account` | Owner profile (avatar + info + Zalo link) | ✅ |
+| `/account/password` | Đổi mật khẩu | ✅ |
+| `/account/security` | 2FA + sessions + login history | ✅ |
+| `/account/tenants` | Tiệm của tôi (multi-tenant ownership) | ✅ |
+| `/[slug]/settings/notifications` | Channel + DND + 11-event matrix | ✅ |
+| `/[slug]/services?empty=1` | Empty state demo | ✅ |
+| `/[slug]/customers?empty=1` | Empty state demo | ✅ |
+| `/admin` | Super admin overview | ✅ |
+| `/admin/tenants` | Tenants list + filters | ✅ |
+| `/admin/tenants/[slug]` | Tenant detail + impersonate + override | ✅ |
+| `/admin/billing` | MRR + transactions | ✅ |
+| `/admin/health` | System health + incidents | ✅ |
+| `/admin/audit` | Audit log | ✅ |
 
-### Mini App `apps/mini-app` (8 routes)
+### Mini App `apps/mini-app` (10 routes)
 
 | Route | Mục đích | Status |
 |-------|----------|--------|
 | `/` → `/tenants/salon-hang` | Redirect | ✅ |
+| `/login` | Zalo 1-tap + SMS OTP picker | ✅ |
+| `/login/otp` | 6-digit OTP input + cooldown 60s | ✅ |
 | `/tenants/:slug` | Home tiệm + dịch vụ + thợ | ✅ |
 | `/tenants/:slug/services` | List dịch vụ | ✅ |
 | `/tenants/:slug/slot/:serviceId` | Staff + date + slot picker | ✅ |
@@ -170,14 +185,14 @@ http://localhost:3000/salon-hang/book
 - Logo placeholder "HếtChờ" text — có cần design logo khác?
 - Mini App mobile container fixed 480px — có thay đổi không?
 
-### Missing screens (chốt có cần build không trước BE)
-- [ ] **Sprint 7 polish**: 404, 500, error boundary, loading skeletons
-- [ ] **Empty states** cho khi mới onboard chưa có gì
-- [ ] **Notification settings detail page** (hiện chỉ toggle)
-- [ ] **Owner profile page** (đổi password, ảnh, logout)
-- [ ] **Mini App auth flow** (Zalo login button, fallback web với SMS OTP)
-- [ ] **Confirm dialog** cho destructive actions (xoá dịch vụ, huỷ booking)
-- [ ] **Admin/super-admin** (HếtChờ team — quản lý tenants)
+### Missing screens — ĐÃ BUILD (Run #4b, 2026-05-16)
+- [x] **404 / 500 / error boundary / loading skeletons** — `app/not-found.tsx`, `error.tsx`, `global-error.tsx`, `loading.tsx`, tenant `[slug]/loading.tsx` + `not-found.tsx`
+- [x] **Empty states** — component `_components/empty-state.tsx`; services + customers list dùng `?empty=1` toggle
+- [x] **Notification settings detail** — `/[slug]/settings/notifications` (5 channel + DND + 11-event matrix)
+- [x] **Owner profile + password + security + tenants** — `/account`, `/account/password`, `/account/security`, `/account/tenants`
+- [x] **Mini App auth flow** — `/login` (Zalo 1-tap + SMS OTP fallback) + `/login/otp` (6-digit input + cooldown 60s)
+- [x] **Confirm dialog** — `_components/confirm-dialog.tsx` (variant danger + require-type-to-confirm); wire vào services edit page
+- [x] **Admin/super-admin** — `/admin` (overview), `/admin/tenants`, `/admin/tenants/[slug]`, `/admin/billing`, `/admin/health`, `/admin/audit`
 
 ---
 
