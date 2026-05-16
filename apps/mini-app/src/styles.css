@@ -103,7 +103,8 @@ body {
   font-size: 13px;
 }
 
-.btn {
+.btn,
+.btn-primary {
   display: block;
   width: 100%;
   background: var(--brand);
@@ -115,16 +116,25 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
-.btn:active { opacity: 0.85; }
+.btn:active,
+.btn-primary:active { opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-outline {
   background: var(--surface);
   color: var(--brand);
   border: 2px solid var(--brand);
 }
 .btn-secondary {
+  display: block;
+  width: 100%;
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .section-title {

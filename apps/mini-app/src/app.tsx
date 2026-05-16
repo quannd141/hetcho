@@ -7,12 +7,16 @@ import { MyBookingsPage } from './pages/my-bookings.page.js';
 import { BookingDetailPage } from './pages/booking-detail.page.js';
 import { MyPackagesPage } from './pages/my-packages.page.js';
 import { ProfilePage } from './pages/profile.page.js';
+import { LoginPage } from './pages/login.page.js';
+import { LoginOtpPage } from './pages/login-otp.page.js';
 
 export function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<Navigate to="/tenants/salon-hang" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/otp" element={<LoginOtpPage />} />
         <Route path="/tenants/:slug" element={<HomePage />} />
         <Route path="/tenants/:slug/services" element={<SelectServicePage />} />
         <Route path="/tenants/:slug/slot/:serviceId" element={<SelectSlotPage />} />
@@ -31,11 +35,12 @@ export function App() {
 function TabBar() {
   const location = useLocation();
   const isTenantHome = /^\/tenants\/[^/]+$/.test(location.pathname);
+  const isAuthRoute = location.pathname.startsWith('/login');
   const isTopLevel = isTenantHome ||
     location.pathname === '/my-bookings' ||
     location.pathname === '/my-packages' ||
     location.pathname === '/profile';
-  if (!isTopLevel) return null;
+  if (isAuthRoute || !isTopLevel) return null;
 
   const active = (path: string) => location.pathname.startsWith(path) ? 'active' : '';
 

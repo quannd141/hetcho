@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export function ProfilePage() {
   return (
     <div>
@@ -19,6 +21,14 @@ export function ProfilePage() {
           <Item icon="📅" label="Nhắc T-24h trước hẹn" toggle defaultOn />
           <Item icon="⏰" label="Nhắc T-2h trước hẹn" toggle defaultOn />
           <Item icon="🎁" label="Khuyến mãi & voucher" toggle />
+        </div>
+
+        <div className="section-title">Phiên đăng nhập</div>
+        <div className="card" style={{ padding: 0 }}>
+          <Link to="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Item icon="🔁" label="Đổi tài khoản / đăng nhập lại" arrow />
+          </Link>
+          <Item icon="🚪" label="Đăng xuất" arrow />
         </div>
 
         <div className="section-title">Hỗ trợ</div>
