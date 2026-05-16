@@ -2,4 +2,8 @@ export * from './mock/mock-payment-gateway.js';
 export * from './mock/mock-notification-sender.js';
 export * from './mock/mock-audit-logger.js';
 export * from './mock/in-memory-booking-repository.js';
+export * from './mock/in-memory-tenant-repository.js';
+export * from './mock/in-memory-service-repository.js';
+export * from './mock/in-memory-customer-repository.js';
+export * from './mock/in-memory-staff-repository.js';
 export * from './factory.js';
