@@ -1,6 +1,5 @@
-'use client';
-
 import Link from 'next/link';
+import { createTenantAction } from '@/lib/actions/tenant.actions';
 
 const TENANT_TYPES = [
   { value: 'salon_toc', label: 'Salon tóc' },
@@ -12,7 +11,9 @@ const TENANT_TYPES = [
   { value: 'other', label: 'Khác' },
 ] as const;
 
-export default function SignupPage() {
+interface PageProps { searchParams: { error?: string } }
+
+export default function SignupPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
@@ -21,13 +22,15 @@ export default function SignupPage() {
           Miễn phí 12 tháng đầu. Không cần thẻ tín dụng. Hủy bất cứ lúc nào.
         </p>
 
-        <form
-          className="mt-6 space-y-4"
-          action="/onboarding"
-          method="get"
-        >
+        {searchParams.error && (
+          <div className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-md text-sm text-rose-700">
+            ⚠️ {searchParams.error}
+          </div>
+        )}
+
+        <form className="mt-6 space-y-4" action={createTenantAction}>
           <label className="block">
-            <span className="text-sm font-medium">Tên tiệm</span>
+            <span className="text-sm font-medium">Tên tiệm *</span>
             <input
               required
               name="name"
@@ -37,10 +40,11 @@ export default function SignupPage() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium">Loại tiệm</span>
+            <span className="text-sm font-medium">Loại tiệm *</span>
             <select
               required
               name="type"
+              defaultValue="salon_toc"
               className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none"
             >
               {TENANT_TYPES.map((t) => (
@@ -50,13 +54,14 @@ export default function SignupPage() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium">Slug (URL tiệm)</span>
+            <span className="text-sm font-medium">Slug (URL tiệm) *</span>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-slate-500 text-sm">hetcho.vn/</span>
               <input
                 required
                 name="slug"
                 pattern="[a-z0-9-]+"
+                minLength={2}
                 placeholder="salon-cua-toi"
                 className="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none"
               />
@@ -65,11 +70,11 @@ export default function SignupPage() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium">Email chủ tiệm</span>
+            <span className="text-sm font-medium">Email chủ tiệm *</span>
             <input
               required
               type="email"
-              name="ownerEmail"
+              name="email"
               placeholder="ban@example.com"
               className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand-500 focus:outline-none"
             />
@@ -79,7 +84,7 @@ export default function SignupPage() {
             type="submit"
             className="w-full rounded-md bg-brand-600 px-4 py-3 text-white font-medium hover:bg-brand-700"
           >
-            Tạo tiệm & tiếp tục onboarding
+            Tạo tiệm & vào dashboard
           </button>
 
           <p className="text-xs text-slate-500 text-center">

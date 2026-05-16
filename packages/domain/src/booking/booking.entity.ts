@@ -1,6 +1,5 @@
 import type { BookingId, CustomerId, ServiceId, StaffId, TenantId } from '@hetcho/shared';
-import { AppError, ValidationError } from '@hetcho/shared';
-import { ErrorCode } from '@hetcho/shared/errors/error-codes.js';
+import { AppError, ErrorCode, ValidationError } from '@hetcho/shared';
 import { Slot } from './slot.vo.js';
 
 export type BookingStatus =

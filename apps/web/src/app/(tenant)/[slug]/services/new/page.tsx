@@ -1,16 +1,24 @@
 import Link from 'next/link';
 import { TenantShell } from '../../_components/tenant-shell';
+import { addServiceAction } from '@/lib/actions/tenant.actions';
 
-interface PageProps { params: { slug: string } }
+interface PageProps { params: { slug: string }; searchParams: { error?: string } }
 
-export default function NewServicePage({ params }: PageProps) {
+export default function NewServicePage({ params, searchParams }: PageProps) {
   return (
     <TenantShell slug={params.slug} active="services">
       <div className="max-w-2xl">
         <Link href={`/${params.slug}/services`} className="text-sm text-slate-500 hover:underline">← Quay về Dịch vụ</Link>
         <h1 className="text-2xl font-bold mt-2 mb-6">Thêm dịch vụ mới</h1>
 
-        <form action={`/${params.slug}/services`} method="get" className="space-y-4 bg-white border border-slate-200 rounded-xl p-6">
+        {searchParams.error && (
+          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-md text-sm text-rose-700">
+            ⚠️ {searchParams.error}
+          </div>
+        )}
+
+        <form action={addServiceAction} className="space-y-4 bg-white border border-slate-200 rounded-xl p-6">
+          <input type="hidden" name="slug" value={params.slug} />
           <label className="block">
             <span className="text-sm font-medium">Tên dịch vụ *</span>
             <input required name="name" placeholder="VD: Cắt + Gội + Sấy"

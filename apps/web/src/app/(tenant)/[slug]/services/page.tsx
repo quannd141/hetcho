@@ -1,17 +1,17 @@
 import Link from 'next/link';
 import { TenantShell } from '../_components/tenant-shell';
 import { EmptyState } from '../_components/empty-state';
-import { demoServices } from '../_lib/demo-catalog';
+import { listServices } from '@/lib/queries';
 
 interface PageProps {
   params: { slug: string };
-  searchParams: { empty?: string };
+  searchParams: { empty?: string; created?: string };
 }
 
 const fmtVnd = (n: number) => n.toLocaleString('vi-VN') + ' ₫';
 
-export default function ServicesPage({ params, searchParams }: PageProps) {
-  const services = searchParams.empty === '1' ? [] : demoServices(params.slug);
+export default async function ServicesPage({ params, searchParams }: PageProps) {
+  const services = searchParams.empty === '1' ? [] : await listServices(params.slug);
   return (
     <TenantShell slug={params.slug} active="services">
       <div className="flex items-center justify-between mb-6">
@@ -23,6 +23,12 @@ export default function ServicesPage({ params, searchParams }: PageProps) {
           + Thêm dịch vụ
         </Link>
       </div>
+
+      {searchParams.created === '1' && (
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-md text-sm text-emerald-800">
+          ✅ Đã thêm dịch vụ mới.
+        </div>
+      )}
 
       {services.length === 0 ? (
         <EmptyState
@@ -52,7 +58,7 @@ export default function ServicesPage({ params, searchParams }: PageProps) {
               {services.map((s) => (
                 <tr key={s.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium">{s.name}</td>
-                  <td className="px-4 py-3 text-slate-500">{s.category}</td>
+                  <td className="px-4 py-3 text-slate-500">{s.category ?? '—'}</td>
                   <td className="px-4 py-3">{s.durationMinutes} phút</td>
                   <td className="px-4 py-3 font-mono">{fmtVnd(s.priceVnd)}</td>
                   <td className="px-4 py-3 font-mono text-slate-500">{s.depositNormalVnd === 0 ? '—' : fmtVnd(s.depositNormalVnd)}</td>

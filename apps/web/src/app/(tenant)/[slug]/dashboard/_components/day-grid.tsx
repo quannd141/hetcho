@@ -1,3 +1,11 @@
+import {
+  cancelBookingAction,
+  checkInAction,
+  completeBookingAction,
+  markNoShowAction,
+  startServiceAction,
+} from '@/lib/actions/booking.actions';
+
 interface BookingRow {
   bookingId: string;
   status: string;
@@ -16,6 +24,7 @@ interface DayGridProps {
   bookings: BookingRow[];
   staffList: Array<{ id: string; name: string }>;
   date: Date;
+  slug: string;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -42,7 +51,42 @@ function fmtTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-export function DayGrid({ bookings, staffList, date }: DayGridProps) {
+function TransitionActions({ slug, bookingId, status }: { slug: string; bookingId: string; status: string }) {
+  if (status === 'completed' || status === 'cancelled' || status === 'no_show') return null;
+
+  const buttonClass =
+    'rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 disabled:opacity-50';
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {(status === 'confirmed' || status === 'pending') && (
+        <>
+          <form action={checkInAction.bind(null, { slug, bookingId })}>
+            <button type="submit" className={buttonClass}>Khách đến</button>
+          </form>
+          <form action={cancelBookingAction.bind(null, { slug, bookingId, reason: 'owner-cancel' })}>
+            <button type="submit" className={buttonClass}>Huỷ</button>
+          </form>
+          <form action={markNoShowAction.bind(null, { slug, bookingId })}>
+            <button type="submit" className={buttonClass}>No-show</button>
+          </form>
+        </>
+      )}
+      {status === 'checked_in' && (
+        <form action={startServiceAction.bind(null, { slug, bookingId })}>
+          <button type="submit" className={buttonClass}>Bắt đầu</button>
+        </form>
+      )}
+      {status === 'in_service' && (
+        <form action={completeBookingAction.bind(null, { slug, bookingId })}>
+          <button type="submit" className={buttonClass + ' bg-emerald-50 border-emerald-200 text-emerald-700'}>Hoàn tất</button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+export function DayGrid({ bookings, staffList, date, slug }: DayGridProps) {
   const dateLabel = date.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
   if (bookings.length === 0) {
@@ -90,6 +134,7 @@ export function DayGrid({ bookings, staffList, date }: DayGridProps) {
                     >
                       {STATUS_LABEL[b.status] ?? b.status}
                     </span>
+                    <TransitionActions slug={slug} bookingId={b.bookingId} status={b.status} />
                   </li>
                 ))}
               </ul>
