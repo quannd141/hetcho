@@ -54,3 +54,4 @@ secrets/
 *.sqlite
 *.sqlite-journal
 data/
+qa-screenshots/

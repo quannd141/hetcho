@@ -10,5 +10,5 @@ export default defineConfig({
       '@hetcho/shared': resolve(__dirname, '../../packages/shared/src'),
     },
   },
-  server: { port: 3001 },
+  server: { port: 3301 },
 });
