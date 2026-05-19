@@ -1,20 +1,15 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { GetAvailabilitySlotsUseCase } from '@hetcho/application';
+import { getContainerReady } from '@/lib/container';
 
 export const dynamic = 'force-dynamic';
 
 const Query = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   serviceId: z.string().uuid(),
-  staffId: z.string().uuid().optional(),
 });
 
-/**
- * GET /api/public/tenants/:slug/availability?date=2026-06-01&serviceId=...
- *
- * Sprint 0: stub trả mock slot grid (30-min interval 8:00-22:00).
- * Sprint 2: implement thật qua use case GetAvailabilityUseCase.
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } },
@@ -28,24 +23,32 @@ export async function GET(
     );
   }
 
-  const slots = generateMockSlots(parsed.data.date);
-  return NextResponse.json({
-    success: true,
-    data: {
-      tenantSlug: params.slug,
-      date: parsed.data.date,
-      slots,
-    },
-  });
-}
-
-function generateMockSlots(date: string): Array<{ startAt: string; available: boolean }> {
-  const result: Array<{ startAt: string; available: boolean }> = [];
-  for (let h = 8; h < 22; h++) {
-    for (const m of [0, 30]) {
-      const startAt = `${date}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00+07:00`;
-      result.push({ startAt, available: Math.random() > 0.3 });
-    }
+  const c = await getContainerReady();
+  const tenant = await c.tenants.findBySlug(params.slug);
+  if (!tenant) {
+    return NextResponse.json(
+      { success: false, error: { code: 'NOT_FOUND', message: 'Tenant not found' } },
+      { status: 404 },
+    );
   }
-  return result;
+
+  const useCase = new GetAvailabilitySlotsUseCase({
+    tenants: c.tenants,
+    services: c.services,
+    bookings: c.bookings,
+  });
+
+  try {
+    const result = await useCase.execute({
+      tenantId: tenant.id,
+      serviceId: parsed.data.serviceId,
+      date: new Date(parsed.data.date + 'T00:00:00.000+07:00'),
+    });
+    return NextResponse.json({ success: true, data: result });
+  } catch (err) {
+    return NextResponse.json(
+      { success: false, error: { code: 'INTERNAL', message: (err as Error).message } },
+      { status: 400 },
+    );
+  }
 }
