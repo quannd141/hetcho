@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { api } from '../services/api.client.js';
 
 export function LoginOtpPage() {
   const navigate = useNavigate();
@@ -34,13 +35,18 @@ export function LoginOtpPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    if (code === '000000' || code === '123456') {
-      alert(`[mock] Đăng nhập thành công với SĐT ${phone}`);
-      navigate(returnTo);
-    } else {
+    if (code !== '000000' && code !== '123456') {
       alert('[mock] Mã sai. Thử 123456 hoặc 000000 để pass.');
+      return;
+    }
+    try {
+      const tenantSlug = returnTo.match(/\/tenants\/([^/]+)/)?.[1] ?? 'salon-hang';
+      await api.login({ tenantSlug, phone, name: 'Khách HếtChờ' });
+      navigate(returnTo);
+    } catch (err) {
+      alert(`Lỗi: ${(err as Error).message}`);
     }
   };
 

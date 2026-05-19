@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { api } from '../services/api.client.js';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -22,14 +23,20 @@ export function LoginPage() {
         <div style={{ padding: '0 20px' }}>
           <button
             className="btn-primary"
-            onClick={() => {
-              alert('[mock] Mở Zalo SDK → getUserInfo() → redirect');
-              navigate(returnTo);
+            onClick={async () => {
+              try {
+                const mockPhone = '0900000000';
+                const tenantSlug = returnTo.match(/\/tenants\/([^/]+)/)?.[1] ?? 'salon-hang';
+                await api.login({ tenantSlug, phone: mockPhone, name: 'Khách Zalo' });
+                navigate(returnTo);
+              } catch (err) {
+                alert(`Lỗi: ${(err as Error).message}`);
+              }
             }}
             style={{ width: '100%', marginBottom: 12, background: '#0068ff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
           >
             <span style={{ fontSize: 18 }}>💬</span>
-            Đăng nhập bằng Zalo (1 chạm)
+            Đăng nhập bằng Zalo (1 chạm — mock)
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0', color: '#94a3b8', fontSize: 12 }}>

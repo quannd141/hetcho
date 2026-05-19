@@ -109,6 +109,17 @@ export const api = {
       `/public/tenants/${slug}/bookings/${bookingId}`,
       { method: 'DELETE' },
     ),
+  login: (input: { tenantSlug: string; phone: string; name?: string }) =>
+    call<{ customerId: string; created: boolean; phone: string }>(`/public/auth/session`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  session: () =>
+    call<{ phone: string; name?: string; tenantBindings: Record<string, string> } | null>(
+      `/public/auth/session`,
+    ),
+  logout: () =>
+    call<{ loggedOut: boolean }>(`/public/auth/session`, { method: 'DELETE' }),
 };
 
 export interface BookingDetailDto {
