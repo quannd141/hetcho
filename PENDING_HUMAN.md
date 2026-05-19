@@ -111,7 +111,7 @@
 
 ---
 
-**Last updated**: 2026-05-16 by night-shift agent (Run #3 — Sprint 2 partial)
+**Last updated**: 2026-05-19 by night-shift agent (Sprint 3 + polish A→C done — sprint-end-review CLOSE)
 
 ---
 
@@ -147,3 +147,39 @@
 - **Demo walkthrough**: đọc `UI_DEMO_WALKTHROUGH.md` — có 4 demo paths (~10-15 phút click-through) + 11 điểm cần founder chốt trước BE.
 - **PENDING_HUMAN status unchanged**: PH-001 → PH-005 vẫn là blocker cho BE wire. Founder cần chốt UI demo trước, sau đó resolve PH-001 → khởi động Run #5 (Sprint 1 real-wire).
 - Cumulative: 24 commits, ~150 source files, 88 tests, 4 night-shift branches.
+
+---
+
+## 📌 Sprint 3 + Polish update (2026-05-19)
+
+Tech Lead dispatch sequence A→B→C autonomous (per "ok lần lượt" instruction):
+
+**A — Features mock-mode** (4 commits):
+- A1: Customer booking detail + cancel (GET/DELETE `/api/public/.../bookings/[id]`)
+- A2: Auth session API (POST/GET/DELETE `/api/public/auth/session`) + Mini App login wire
+- A3: Customer review flow (5-star + comment, `/api/public/.../bookings/[id]/review`)
+- A4: Reminder cron stub (`/api/cron/reminders?window=24h|2h`)
+
+**B — Sprint-end-review** (1 commit, `SPRINT_END_REVIEW.md`):
+- 3-gate verdict: ✅ PASS (QA: 24/24 routes, BA: 9/10 features, Tech: arch compliant)
+- 100/104 tests pass dưới TZ=UTC (4 pre-existing TZ-fragile)
+
+**C — Warning fixes** (1 commit):
+- Dynamic favicon via `app/icon.tsx` (brand orange 'H')
+- `app/(tenant)/[slug]/default.tsx` silence parallel-route warning
+- Mini App favicon.svg + link
+
+**D — Blockers still pending** (anh xử lý):
+- 🔴 PH-001 Supabase: blocker chính cho Sprint 4 real-wire (DrizzleRepository swap)
+- 🔴 PH-002 Zalo OA + Mini App ID: blocker Mini App production deploy
+- 🔴 PH-003 VNPay sandbox: blocker real payment flow
+- 🟡 PH-004 Domain hetcho.vn
+- 🟡 PH-005 Vercel + Sentry + observability stack
+- 🟡 PH-008 5 tiệm pilot beta
+- 🟡 PH-009 ≥3 real user interviews
+
+**Cumulative state**:
+- Branches: `night-shift/ui-demo-20260516` (current, 26 commits)
+- Routes: 60+ web + 11 mini-app + **10 API endpoints** (mới Sprint 3)
+- Tests: 104 (96 local Asia/Ho_Chi_Minh, 100 UTC)
+- Customer flow E2E: ✅ verified via curl (signup → create booking → confirm-mock → my-bookings → owner dashboard)
