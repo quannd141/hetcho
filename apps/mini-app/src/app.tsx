@@ -9,6 +9,7 @@ import { MyPackagesPage } from './pages/my-packages.page.js';
 import { ProfilePage } from './pages/profile.page.js';
 import { LoginPage } from './pages/login.page.js';
 import { LoginOtpPage } from './pages/login-otp.page.js';
+import { ReviewPage } from './pages/review.page.js';
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
         <Route path="/tenants/:slug/confirm" element={<ConfirmPage />} />
         <Route path="/my-bookings" element={<MyBookingsPage />} />
         <Route path="/my-bookings/:id" element={<BookingDetailPage />} />
+        <Route path="/my-bookings/:id/review" element={<ReviewPage />} />
         <Route path="/my-packages" element={<MyPackagesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/tenants/salon-hang" />} />
