@@ -1,217 +1,81 @@
-# 🎨 UI Demo Report — Run #4 (Tech Lead Dispatch, 2026-05-16)
+# 🌙 Night Shift Report — 2026-05-20 (Run #5)
 
-> **Strategy shift**: User chỉ đạo "build hết UI với mock data trước → demo click-through → chốt UX → mới làm BE + đăng ký API keys".
->
-> Tech Lead nhận instruction → phân rã 11 todo → autonomous dispatch (1 mạch, không hỏi xác nhận).
->
-> Sprint 0 → `NIGHT_SHIFT_REPORT.sprint-0.md` · Sprint 1 → `.sprint-1.md` · Sprint 2 → `.sprint-2.md`
-> **Demo walkthrough**: `UI_DEMO_WALKTHROUGH.md` ← anh Quân đọc file này trước.
+**Sprint context**: Tech-debt sweep after Sprint 4 BE-Real-Wire
+**Branch**: `night-shift/ui-demo-20260516` (continuation, now 31 commits)
+**Mode**: NIGHT_SHIFT_MODE — mock + local Postgres only, no remote push
 
-**Branch**: `night-shift/ui-demo-20260516` (off `night-shift/sprint-2-20260516`)
-**Mode**: ✅ NIGHT_SHIFT_MODE — mock + local only
-**Date**: 2026-05-16
-**Run**: #4 + #4b (build hết missing screens)
+> Earlier night-shift reports archived at `NIGHT_SHIFT_REPORT.sprint-0.md`, `.sprint-1.md`, `.sprint-2.md`. Run #4 UI demo report content is now superseded — see `UI_DEMO_WALKTHROUGH.md` for the demo flow context.
 
 ---
 
 ## Summary
 
-✅ **Done**: 11 / 11 UI tasks (Run #4) + **6 / 6 missing-screen tasks (Run #4b)**
-🚫 **Violations**: 0
-🚫 **Tests added**: 0 (UI test sẽ ở Sprint 7 với Playwright theo plan — không phá quy tắc)
+✅ **Done**: 6 / 6 stories
+🟡 **Partial**: 0
+⏸️ **Skipped**: 0 (no story tonight needed founder credential)
+🧪 **Tests**: 104 → 127 passing (+23 net new), 7 Drizzle integration skipped by default
+   - Final count: **127/127** under both `TZ=UTC` and `TZ=Asia/Ho_Chi_Minh` ✅
 
-## Run #4b — Missing screens (6 commits)
+## Done Stories
 
-| Commit | Scope | Files |
-|--------|-------|-------|
-| `da06f0d` (~) | 404/500/error-boundary + loading skeletons | 6 |
-| `e9b6c81` (~) | owner account (profile/password/security/tenants) | 5 |
-| `6caece5` | notification settings detail (channels + DND + matrix) | 2 |
-| `38ad0d3` (~) | empty states + confirm dialog component | 5 |
-| `f31bf12` (~) | Mini App auth flow (Zalo 1-tap + SMS OTP) | 5 |
-| `latest` | super-admin panel (5 pages) | 7 |
+| Story | Commit | What |
+|---|---|---|
+| S1 TZ-fragile fix | `24fec7c` | New `shared/utils/tz.ts` (Intl.DateTimeFormat helpers: `tzWeekday`, `tzHHMM`, `tzYMD`, `tzHHMMToUtc`). Refactored `isWithinWorkingHours`, `Tenant.isPeakSlot`, `GetAvailabilitySlotsUseCase` to use `tenant.timezone`. **4 previously-fragile tests now pass under UTC.** |
+| S3 Working hours validation | (merged into S1) | `GetAvailabilitySlots` now correctly enforces `slot ⊆ workingHours` regardless of server TZ. |
+| S2 Availability use case tests | `d71fd62` | 9 unit tests: weekday open/close, closed Sunday, peak boundary at 14:00, confirmed booking blocks slots, cancelled/no_show ignored, NotFound, custom slotMinutes, no-overrun for 90-min service. |
+| S4 Drizzle repo integration | `ba2fc2f` | 7 tests against local Postgres, gated by `INTEGRATION_TESTS=true` + `DATABASE_URL`. Uses `ffff-` UUID prefix to avoid seed collision; refactored `db/client.ts` to expose `createClientWithHandle({ db, end })`. |
+| S5 Review domain entity | `793a48b` | Removed `apps/web/src/lib/reviews-store.ts` (globalThis Map). Added `Review` entity (rating 1-5, comment ≤500), `ReviewRepository` port, `InMemoryReviewRepository`, `DrizzleReviewRepository`, `reviews` schema + migration `0001_fresh_moondragon.sql` (applied to local DB). Route refactored to use container. |
+| S6 Webhook idempotency | `3ba3737` | 7 tests on `MarkDepositPaidUseCase`: double-webhook (same txn), rogue duplicate (different txn), late-after-cancel, cross-tenant, ghost booking, overpayment accepted, audit payload preserves `gatewayTxnId`. |
 
-**Total routes**: 38 → **60 routes** (44 web + 10 mini-app + 6 admin).
+## Verification
 
----
+- `TZ=UTC pnpm vitest run` → **127 PASS / 7 skipped** ✅
+- `TZ=Asia/Ho_Chi_Minh pnpm vitest run` → **127 PASS / 7 skipped** ✅
+- `DATABASE_URL=... INTEGRATION_TESTS=true pnpm vitest run drizzle.integration` → **7 PASS** ✅
+- `pnpm --filter @hetcho/db db:generate` → emits `0001_fresh_moondragon.sql` cleanly
+- `db:migrate` applied to local `hetcho` DB → `reviews` table created with FKs + 2 indexes
 
-## Done — 7 commits
+## Skipped
 
-| Commit | Scope | Files |
-|--------|-------|-------|
-| `d6ef728` | onboarding wizard 5 steps with real forms | 7 |
-| `9972c62` | settings + services CRUD + staff list/new + TenantShell | 8 |
-| `09fca51` | customers + packages + reports pages | 5 |
-| `63f179b` | Mini App mobile-first CSS + 4 new pages | 8 |
-| `78ae0ab` | Mini App rewrite home/select-slot/confirm + tab-bar | 4 |
-| `0f9d609` | Marketing hub + ZNS templates + recovery campaign | 3 |
-| `b9971ac` | landing polish + public booking fallback /[slug]/book | 3 |
+None tonight — every planned story was doable without founder credentials.
 
-**Total**: 38 routes (28 web + 8 mini-app + 2 success page).
+## 3-Gate Sprint Review
 
----
+**Not run tonight** — this was a tech-debt sweep, not a sprint close. Sprint 3 sprint-end-review still stands as the most recent gate result (`SPRINT_END_REVIEW.md`, CLOSE on 2026-05-19). The 3 tech-debt carry-overs from that review are now resolved:
 
-## Phân rã UI groups
+- ✅ TZ-fragile demo-tenants tests → fixed at the domain layer (not just test fixtures)
+- ✅ GetAvailabilitySlotsUseCase unit tests → 9 tests added
+- ✅ Review domain entity → replaces globalThis Map, persistable
 
-### UI-A: Tenant internal pages (web/[slug]/*)
+## Khuyến nghị sáng mai user nên làm (theo thứ tự)
 
-✅ Onboarding 5 steps (`/onboarding/step-{1..5}`) + stepper component
-✅ Settings 8 sections (info / hours / peak / deposit / cancel / Zalo / payment / GCal)
-✅ Services CRUD: list + new + edit (3 routes)
-✅ Staff: card grid + new form (2 routes)
-✅ Customers: list with tier filter + detail with progress bar + history (2 routes)
-✅ Packages: list + new (spa-only with empty state)
-✅ Reports: stat cards + 7-day bar chart + top services + top staff + range toggle
-✅ Marketing: hub + templates editor + recovery campaign (3 routes)
+1. **Review the migration** for safety: `git show 793a48b -- packages/db/drizzle/0001_fresh_moondragon.sql` — sanity-check before any future remote DB application
+2. **Verify locally**: `pnpm --filter @hetcho/web dev` (with `USE_REAL_DB=true DATABASE_URL=...`), then test review flow on Mini App
+3. **Run full suite**: `TZ=UTC pnpm vitest run` — should show 127/134 (7 Drizzle integration skipped)
+4. **Optional integration verification**: `DATABASE_URL=... INTEGRATION_TESTS=true pnpm vitest run drizzle.integration` → 7 PASS
+5. **PENDING_HUMAN.md unchanged**: PH-002 (Zalo OA), PH-003 (VNPay), PH-004 (domain), PH-005 (observability), PH-008/009 (pilot users) — still founder-action items. No new pending entries added tonight.
 
-### UI-B: Mini App (apps/mini-app, mobile-first)
+## Issues & Decisions tôi đã tự quyết (user check lại)
 
-✅ styles.css: 480px container, brand-orange theme, status pills, peak badges
-✅ Tab bar (4 tabs): Tiệm / Lịch của tôi / Liệu trình / Tài khoản
-✅ HomePage: hero + tenant card + popular services + staff grid
-✅ SelectServicePage: list with category + price
-✅ SelectSlotPage: staff cards + 7-day chips + 30-min slot grid (peak highlight)
-✅ ConfirmPage: full summary + cọc calculation + agreement + redirect stub
-✅ MyBookingsPage: upcoming + history split, status pills
-✅ BookingDetailPage: timeline status + payment breakdown + per-status actions
-✅ MyPackagesPage: progress bars + remaining
-✅ ProfilePage: customer tier + notification toggles + support links
+- **`drizzle-orm` added to infra package deps** (was implicit via `@hetcho/db`; vitest can't resolve transitive). Same-version `^0.30.10` pinned.
+- **`packages/db/client.ts` API extension**: kept `createClient()` returning bare drizzle instance (existing callers untouched); added `createClientWithHandle()` for tests that need to release the pool.
+- **Test UUID prefix `ffff-`** for Drizzle integration tests — chosen to not collide with seed prefixes `1111/2222/3333/`.
+- **Review entity invariants**: trims whitespace on `comment`, but does NOT enforce one-review-per-booking at the domain layer; enforced by `reviews_booking_idx` UNIQUE index + `onConflictDoUpdate` (last write wins; preserves original `id`/`createdAt` for re-reviews).
+- **`Tenant.timezone` getter** added to entity (was only in props). Now read by `Application.create-booking`, `Application.walk-in-booking`, `Application.get-availability-slots` instead of digging into `toJSON()`.
 
-### UI-C: Marketing (F5)
+## Không làm gì
 
-✅ Templates editor with 5 ZNS templates + variable hints
-✅ Recovery 30/60/90 with voucher escalation 10→20→30% + funnel stats
-
-### UI-D: Public + landing polish
-
-✅ Landing redesign: hero + demo picker + 6-feature grid + brand CTA strip
-✅ Public booking `/[slug]/book`: full form for non-Zalo users
-✅ `/[slug]/book/success`: confirmation + OA cross-sell
-
----
-
-## 🟡 Decisions tự quyết (verify trong UI_DEMO_WALKTHROUGH.md mục "Điểm cần anh Quân chốt")
-
-| Decision | Reversibility |
-|----------|---------------|
-| Onboarding 5 bước (không phải 6 — bỏ logo upload) | ✅ Có thể thêm step-6 |
-| Walk-in form: chỉ tên + SĐT (không email) | ✅ Per-tenant config |
-| Tab bar 4 tabs Mini App | ✅ Đổi được |
-| Recovery campaign 10/20/30% voucher | ✅ Per-tenant config |
-| Tenant nav 8 tabs (Lịch / Dịch vụ / Thợ / Khách / Gói / Báo cáo / Marketing / Cấu hình) | 🟡 Có thể consolidate |
-| Mini App fixed 480px container | 🟡 Đổi sang responsive khi Sprint 7 |
-| Demo data hard-coded trong `_lib/demo-catalog.ts` (web) + `services/demo-data.ts` (mini-app) | ✅ Swap khi PH-001 |
-| Status VN labels: "Chờ cọc / Đã xác nhận / Khách đến / Đang làm / Hoàn tất / Đã huỷ / Khách bỏ hẹn" | 🟡 Founder ưng thì giữ |
-| Brand orange #f97316 | 🟡 Đợi brand decision |
-| Mọi form dùng `method="get" action="..."` (mock submit) | ✅ Swap server action khi BE ready |
-
----
-
-## 🔒 Constraint compliance — ZERO violation
-
-| Rule | Status |
-|------|--------|
-| Mock everything | ✅ Demo data inline, không gọi API |
-| Không push remote | ✅ |
-| Không touch main | ✅ |
-| Không deploy | ✅ |
-| Không gọi DB thật | ✅ |
-| Không gọi Zalo/VNPay thật | ✅ Stub redirect |
-| Commit atomic per UI group | ✅ 7 commits = 4 UI groups |
-
----
-
-## 📂 Files structure
-
-```
-apps/
-├── web/
-│   └── src/app/
-│       ├── page.tsx                          # landing (redesign)
-│       ├── (auth)/{login,signup}/page.tsx
-│       ├── onboarding/
-│       │   ├── _components/stepper.tsx
-│       │   ├── page.tsx                      # welcome
-│       │   └── step-{1..5}/page.tsx          # 5 steps
-│       ├── (tenant)/[slug]/
-│       │   ├── _components/tenant-shell.tsx  # shared header + 8-tab nav
-│       │   ├── _lib/demo-catalog.ts          # mock data
-│       │   ├── dashboard/
-│       │   │   ├── _components/{day-grid,day-week-toggle}.tsx
-│       │   │   ├── _lib/demo-data.ts
-│       │   │   ├── page.tsx
-│       │   │   └── walk-in/page.tsx
-│       │   ├── services/{,new,[id]/edit}/page.tsx
-│       │   ├── staff/{,new}/page.tsx
-│       │   ├── customers/{,[id]}/page.tsx
-│       │   ├── packages/{,new}/page.tsx
-│       │   ├── reports/page.tsx
-│       │   ├── marketing/{,templates,recovery}/page.tsx
-│       │   └── settings/page.tsx
-│       └── (public)/[slug]/book/{,success}/page.tsx
-└── mini-app/
-    └── src/
-        ├── styles.css                        # mobile-first CSS
-        ├── app.tsx                           # 8 routes + tab bar
-        ├── services/{api.client,demo-data}.ts
-        └── pages/
-            ├── home.page.tsx
-            ├── select-service.page.tsx
-            ├── select-slot.page.tsx
-            ├── confirm.page.tsx
-            ├── my-bookings.page.tsx
-            ├── booking-detail.page.tsx
-            ├── my-packages.page.tsx
-            └── profile.page.tsx
-```
-
----
-
-## Khuyến nghị sáng mai
-
-### 1. Đọc demo walkthrough (5 phút)
-```bash
-cat UI_DEMO_WALKTHROUGH.md
-```
-Có 4 demo paths + checklist 11 điểm cần chốt UX/copy.
-
-### 2. Boot 2 dev server (parallel)
-```bash
-# Terminal 1
-pnpm --filter @hetcho/web dev      # → :3000
-
-# Terminal 2
-pnpm --filter @hetcho/mini-app dev # → :3001
-```
-
-### 3. Click-through theo Path 1 → Path 4 trong walkthrough
-
-### 4. Edit UI_DEMO_WALKTHROUGH.md trực tiếp với ý kiến của anh
-Mục "🚨 Điểm cần anh Quân chốt" — tick/sửa từng điểm.
-
-### 5. Sau khi chốt → resolve PENDING_HUMAN.md
-PH-001 → PH-005 là blocker cho phase BE. Khi xong → `/night-shift` Run #5 cho Sprint 1 real-wire.
-
----
+- ❌ KHÔNG deploy production
+- ❌ KHÔNG push remote (commits stay on local `night-shift/ui-demo-20260516`)
+- ❌ KHÔNG gọi API thật (Mock* adapters still in container)
+- ❌ KHÔNG DROP DATABASE (guardrail blocked the test-DB cleanup attempt — used row-level cleanup with ffff-prefix UUIDs instead, correct call by the guardrail)
+- ❌ KHÔNG commit secrets (.env.local stays gitignored)
 
 ## 🧠 Context Checkpoint
 
-- **Estimate context**: 🟠 ~75% (đã build 38 routes + 4 commits Sprint 2 trước đó)
-- **Khuyến nghị**: `/compact` trước Run #5
+- Estimate context: 🟡 ~55% (6 stories, ~30 file reads/writes, ~12 test runs)
+- This session is a continuation after `/compact` from a prior compaction
+- Khuyến nghị sáng mai user: nếu tiếp tục coding sprint → có thể `/compact` lại trước khi dispatch tiếp
 
 ---
-
-## Không làm gì (compliance)
-
-- ❌ KHÔNG deploy
-- ❌ KHÔNG push remote
-- ❌ KHÔNG merge vào main
-- ❌ KHÔNG gọi Supabase/Zalo/VNPay thật
-- ❌ KHÔNG commit credentials
-- ❌ KHÔNG sửa file production env
-- ❌ KHÔNG add real test (UI test theo plan ở Sprint 7 Playwright)
-
----
-
-_Generated by tech-lead dispatch — Run #4 — 2026-05-16_
-_HếtChờ — Phát triển bởi Quân Nguyễn — Demo first, build right._
+_Generated by night-shift skill @ 2026-05-20_

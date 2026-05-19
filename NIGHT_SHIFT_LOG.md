@@ -1,24 +1,29 @@
-# Night Shift Log — Run #3 (Sprint 2)
+# Night Shift Log — Run #5 (Sprint 4+ tech debt)
 
-**Date**: 2026-05-16
-**Branch**: `night-shift/sprint-2-20260516`
-**Mode**: NIGHT_SHIFT_MODE=true (mock + local only)
+**Date**: 2026-05-20
+**Branch**: `night-shift/ui-demo-20260516` (continuation)
+**Mode**: NIGHT_SHIFT_MODE=true (mock + local Postgres OK)
 
 ## Budget
-- Max stories: 7
-- Max time/story: 30 min
+- Max stories: 6
+- Max time/story: 25 min
 - Max retries: 3
 
 ## Stories
 
-- [ ] S2-01 Transition use cases (check-in / start-service / complete / no-show / mark-deposit-paid)
-- [ ] S2-02 ListBookingsForDate query
-- [ ] S2-03 RealtimeBroadcaster port + mock + wire
-- [ ] S2-04 WalkInBookingUseCase
-- [ ] S2-05 Dashboard day-view grid + walk-in form skeleton
-- [ ] S2-06 Full lifecycle integration test
-- [ ] S2-07 Report + PENDING_HUMAN refresh
+- [x] S1 Fix 4 TZ-fragile tests in demo-tenants.test.ts → fixed at domain layer via shared tz helpers (commit 24fec7c)
+- [x] S2 Unit tests for GetAvailabilitySlotsUseCase → 9 tests (commit d71fd62)
+- [x] S3 Working hours validation → merged into S1
+- [x] S4 Drizzle repository integration tests (local Postgres) → 7 tests gated by env (commit ba2fc2f)
+- [x] S5 Review → proper domain entity + Drizzle repo → entity+port+InMem+Drizzle+migration+route refactor (commit 793a48b)
+- [x] S6 Webhook idempotency tests (mock VNPay retry) → 7 tests (commit 3ba3737)
 
-## Skipped (need PH-001 Supabase)
-- US-F2-002 backed by real Postgres → mock InMemoryBookingRepository only
-- US-F3-002 real Supabase Realtime → MockRealtimeBroadcaster only
+## Skipped (need PH-002/003)
+- Real Zalo OA wire
+- Real VNPay webhook
+- Production deploy
+
+## Result
+- 6/6 stories done
+- 127 tests pass (was 104) under TZ=UTC and TZ=Asia/Ho_Chi_Minh
+- 5 atomic night-shift commits
