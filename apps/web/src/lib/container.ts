@@ -1,6 +1,6 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import type { Tenant, BookingRepository } from '@hetcho/domain';
+import type { Tenant, BookingRepository, ReviewRepository } from '@hetcho/domain';
 import type { TenantId } from '@hetcho/shared';
 import type {
   BookingDependencies,
@@ -13,11 +13,13 @@ import type {
 import {
   DrizzleBookingRepository,
   DrizzleCustomerRepository,
+  DrizzleReviewRepository,
   DrizzleServiceRepository,
   DrizzleStaffRepository,
   DrizzleTenantRepository,
   InMemoryBookingRepository,
   InMemoryCustomerRepository,
+  InMemoryReviewRepository,
   InMemoryServiceRepository,
   InMemoryStaffRepository,
   InMemoryTenantRepository,
@@ -39,6 +41,7 @@ interface Container {
   staff: StaffWriteRepository;
   customers: CustomerRepository & { findByPhoneHash(tenantId: TenantId, hash: string): Promise<unknown> };
   bookings: BookingRepository;
+  reviews: ReviewRepository;
   payment: MockPaymentGateway;
   notification: MockNotificationSender;
   audit: MockAuditLogger;
@@ -63,6 +66,7 @@ function build(): Container {
   let staff: StaffWriteRepository;
   let customers: Container['customers'];
   let bookings: BookingRepository;
+  let reviews: ReviewRepository;
   let seeded: Promise<void>;
 
   if (useRealDb) {
@@ -74,6 +78,7 @@ function build(): Container {
     staff = new DrizzleStaffRepository(db);
     customers = new DrizzleCustomerRepository(db) as Container['customers'];
     bookings = new DrizzleBookingRepository(db);
+    reviews = new DrizzleReviewRepository(db);
 
     seeded = (async () => {
       const existing = await tenants.findBySlug('salon-hang');
@@ -96,6 +101,7 @@ function build(): Container {
     staff = new InMemoryStaffRepository();
     customers = new InMemoryCustomerRepository() as Container['customers'];
     bookings = new InMemoryBookingRepository();
+    reviews = new InMemoryReviewRepository();
     seeded = seedDemoTenants({
       tenants: tenants as never,
       services: services as never,
@@ -137,6 +143,7 @@ function build(): Container {
     staff,
     customers,
     bookings,
+    reviews,
     payment,
     notification,
     audit,

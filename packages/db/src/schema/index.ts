@@ -8,4 +8,5 @@ export * from './packages';
 export * from './transactions';
 export * from './notifications';
 export * from './audit-events';
+export * from './reviews';
 export * from './enums';

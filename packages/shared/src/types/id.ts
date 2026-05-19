@@ -9,6 +9,7 @@ export type StaffId = Brand<string, 'StaffId'>;
 export type CustomerId = Brand<string, 'CustomerId'>;
 export type PackageId = Brand<string, 'PackageId'>;
 export type TransactionId = Brand<string, 'TransactionId'>;
+export type ReviewId = Brand<string, 'ReviewId'>;
 
 export const TenantId = (v: string): TenantId => v as TenantId;
 export const UserId = (v: string): UserId => v as UserId;
@@ -18,3 +19,4 @@ export const StaffId = (v: string): StaffId => v as StaffId;
 export const CustomerId = (v: string): CustomerId => v as CustomerId;
 export const PackageId = (v: string): PackageId => v as PackageId;
 export const TransactionId = (v: string): TransactionId => v as TransactionId;
+export const ReviewId = (v: string): ReviewId => v as ReviewId;

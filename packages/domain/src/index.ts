@@ -6,3 +6,5 @@ export * from './service/service.entity.js';
 export * from './customer/customer.entity.js';
 export * from './tenant/tenant.entity.js';
 export * from './tenant/working-hours.vo.js';
+export * from './review/review.entity.js';
+export * from './review/review.repository.js';
