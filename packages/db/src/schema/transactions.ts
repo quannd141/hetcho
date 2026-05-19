@@ -1,7 +1,7 @@
 import { integer, jsonb, pgTable, text, timestamp, uuid, uniqueIndex, index } from 'drizzle-orm/pg-core';
-import { paymentGatewayEnum, transactionStatusEnum } from './enums.js';
-import { bookings } from './bookings.js';
-import { tenants } from './tenants.js';
+import { paymentGatewayEnum, transactionStatusEnum } from './enums';
+import { bookings } from './bookings';
+import { tenants } from './tenants';
 
 export const transactions = pgTable(
   'transactions',

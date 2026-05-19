@@ -1,5 +1,5 @@
 import { jsonb, pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
-import { tenants } from './tenants.js';
+import { tenants } from './tenants';
 
 /**
  * Append-only audit log cho mọi action critical:

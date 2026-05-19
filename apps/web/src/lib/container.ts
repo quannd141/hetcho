@@ -1,8 +1,21 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
+import type { Tenant, BookingRepository } from '@hetcho/domain';
 import type { TenantId } from '@hetcho/shared';
-import type { BookingDependencies, UnitOfWork } from '@hetcho/application';
+import type {
+  BookingDependencies,
+  CustomerRepository,
+  ServiceWriteRepository,
+  StaffWriteRepository,
+  TenantWriteRepository,
+  UnitOfWork,
+} from '@hetcho/application';
 import {
+  DrizzleBookingRepository,
+  DrizzleCustomerRepository,
+  DrizzleServiceRepository,
+  DrizzleStaffRepository,
+  DrizzleTenantRepository,
   InMemoryBookingRepository,
   InMemoryCustomerRepository,
   InMemoryServiceRepository,
@@ -14,13 +27,18 @@ import {
   MockRealtimeBroadcaster,
   seedDemoTenants,
 } from '@hetcho/infrastructure';
+import { createClient } from '@hetcho/db';
+
+interface TenantRepo extends TenantWriteRepository {
+  findAll(): Promise<Tenant[]>;
+}
 
 interface Container {
-  tenants: InMemoryTenantRepository;
-  services: InMemoryServiceRepository;
-  staff: InMemoryStaffRepository;
-  customers: InMemoryCustomerRepository;
-  bookings: InMemoryBookingRepository;
+  tenants: TenantRepo;
+  services: ServiceWriteRepository;
+  staff: StaffWriteRepository;
+  customers: CustomerRepository & { findByPhoneHash(tenantId: TenantId, hash: string): Promise<unknown> };
+  bookings: BookingRepository;
   payment: MockPaymentGateway;
   notification: MockNotificationSender;
   audit: MockAuditLogger;
@@ -28,6 +46,7 @@ interface Container {
   bookingDeps: BookingDependencies;
   unitOfWork: UnitOfWork;
   seeded: Promise<void>;
+  driver: 'mock' | 'drizzle';
 }
 
 declare global {
@@ -36,11 +55,55 @@ declare global {
 }
 
 function build(): Container {
-  const tenants = new InMemoryTenantRepository();
-  const services = new InMemoryServiceRepository();
-  const staff = new InMemoryStaffRepository();
-  const customers = new InMemoryCustomerRepository();
-  const bookings = new InMemoryBookingRepository();
+  const useRealDb = process.env.USE_REAL_DB === 'true';
+  const driver: 'mock' | 'drizzle' = useRealDb ? 'drizzle' : 'mock';
+
+  let tenants: TenantRepo;
+  let services: ServiceWriteRepository;
+  let staff: StaffWriteRepository;
+  let customers: Container['customers'];
+  let bookings: BookingRepository;
+  let seeded: Promise<void>;
+
+  if (useRealDb) {
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error('USE_REAL_DB=true but DATABASE_URL not set');
+    const db = createClient(url);
+    tenants = new DrizzleTenantRepository(db);
+    services = new DrizzleServiceRepository(db);
+    staff = new DrizzleStaffRepository(db);
+    customers = new DrizzleCustomerRepository(db) as Container['customers'];
+    bookings = new DrizzleBookingRepository(db);
+
+    seeded = (async () => {
+      const existing = await tenants.findBySlug('salon-hang');
+      if (existing) {
+        console.log('[container:drizzle] demo tenants already seeded — skip');
+        return;
+      }
+      console.log('[container:drizzle] seeding demo tenants…');
+      await seedDemoTenants({
+        tenants: tenants as never,
+        services: services as never,
+        staff: staff as never,
+        customers: customers as never,
+      });
+      console.log('[container:drizzle] seed done');
+    })();
+  } else {
+    tenants = new InMemoryTenantRepository();
+    services = new InMemoryServiceRepository();
+    staff = new InMemoryStaffRepository();
+    customers = new InMemoryCustomerRepository() as Container['customers'];
+    bookings = new InMemoryBookingRepository();
+    seeded = seedDemoTenants({
+      tenants: tenants as never,
+      services: services as never,
+      staff: staff as never,
+      customers: customers as never,
+    }).then(() => undefined);
+  }
+
   const payment = new MockPaymentGateway();
   const notification = new MockNotificationSender();
   const audit = new MockAuditLogger();
@@ -66,7 +129,7 @@ function build(): Container {
     generateId: () => randomUUID(),
   };
 
-  const seeded = seedDemoTenants({ tenants, services, staff, customers }).then(() => undefined);
+  console.log(`[container] driver=${driver}`);
 
   return {
     tenants,
@@ -81,6 +144,7 @@ function build(): Container {
     bookingDeps,
     unitOfWork,
     seeded,
+    driver,
   };
 }
 

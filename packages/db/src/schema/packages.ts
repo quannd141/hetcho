@@ -1,8 +1,8 @@
 import { integer, pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
-import { bookings } from './bookings.js';
-import { customers } from './customers.js';
-import { services } from './services.js';
-import { tenants } from './tenants.js';
+import { bookings } from './bookings';
+import { customers } from './customers';
+import { services } from './services';
+import { tenants } from './tenants';
 
 export const packages = pgTable(
   'packages',

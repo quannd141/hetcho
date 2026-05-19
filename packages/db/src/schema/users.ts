@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, uuid, uniqueIndex, index } from 'drizzle-orm/pg-core';
-import { userRoleEnum } from './enums.js';
-import { tenants } from './tenants.js';
+import { userRoleEnum } from './enums';
+import { tenants } from './tenants';
 
 export const users = pgTable(
   'users',

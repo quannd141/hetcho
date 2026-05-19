@@ -1,6 +1,6 @@
 import { boolean, jsonb, pgTable, primaryKey, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
-import { services } from './services.js';
-import { tenants } from './tenants.js';
+import { services } from './services';
+import { tenants } from './tenants';
 
 export const staff = pgTable(
   'staff',

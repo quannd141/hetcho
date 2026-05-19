@@ -1,9 +1,9 @@
 import { boolean, integer, jsonb, pgTable, text, timestamp, uuid, index } from 'drizzle-orm/pg-core';
-import { bookingStatusEnum } from './enums.js';
-import { customers } from './customers.js';
-import { services } from './services.js';
-import { staff } from './staff.js';
-import { tenants } from './tenants.js';
+import { bookingStatusEnum } from './enums';
+import { customers } from './customers';
+import { services } from './services';
+import { staff } from './staff';
+import { tenants } from './tenants';
 
 export const bookings = pgTable(
   'bookings',
