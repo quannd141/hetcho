@@ -43,8 +43,8 @@ let deps: BookingDependencies;
 let seeded: Awaited<ReturnType<typeof seedDemoTenants>>;
 let idCounter: number;
 
-const SAT_PEAK = new Date('2026-06-06T15:00:00Z');
-const NOW_BEFORE = new Date('2026-06-05T08:00:00Z');
+const SAT_PEAK = new Date('2026-06-06T15:00:00+07:00');
+const NOW_BEFORE = new Date('2026-06-05T08:00:00+07:00');
 
 function genId(): string {
   idCounter++;

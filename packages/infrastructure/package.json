@@ -15,7 +15,8 @@
     "@hetcho/application": "workspace:*",
     "@hetcho/db": "workspace:*",
     "@hetcho/domain": "workspace:*",
-    "@hetcho/shared": "workspace:*"
+    "@hetcho/shared": "workspace:*",
+    "drizzle-orm": "^0.30.10"
   },
   "devDependencies": {
     "typescript": "^5.4.5",

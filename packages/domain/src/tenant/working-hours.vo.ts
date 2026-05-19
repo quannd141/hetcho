@@ -1,3 +1,5 @@
+import { tzHHMM, tzWeekday } from '@hetcho/shared';
+
 export type Day = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
 export interface DayHours {
@@ -7,17 +9,19 @@ export interface DayHours {
 
 export type WorkingHours = Partial<Record<Day, DayHours | null>>;
 
-const DAYS: readonly Day[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-
-export function isWithinWorkingHours(workingHours: WorkingHours, at: Date, durationMinutes: number): boolean {
-  const day = DAYS[at.getDay()];
-  if (!day) return false;
+export function isWithinWorkingHours(
+  workingHours: WorkingHours,
+  at: Date,
+  durationMinutes: number,
+  timeZone: string,
+): boolean {
+  const day = tzWeekday(at, timeZone);
   const hours = workingHours[day];
   if (!hours) return false;
 
   const endTime = new Date(at.getTime() + durationMinutes * 60_000);
-  const dayStr = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
-  const endStr = `${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`;
+  const startHHMM = tzHHMM(at, timeZone);
+  const endHHMM = tzHHMM(endTime, timeZone);
 
-  return dayStr >= hours.open && endStr <= hours.close;
+  return startHHMM >= hours.open && endHHMM <= hours.close;
 }

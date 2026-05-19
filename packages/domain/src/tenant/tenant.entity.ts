@@ -1,4 +1,4 @@
-import type { TenantId } from '@hetcho/shared';
+import { type TenantId, tzHHMM, tzWeekday } from '@hetcho/shared';
 import type { WorkingHours } from './working-hours.vo.js';
 
 export type TenantType = 'salon_toc' | 'spa_skincare' | 'nail' | 'goi_dau' | 'barber' | 'massage' | 'other';
@@ -21,8 +21,6 @@ export interface TenantProps {
   cancelPolicy: { refundFullHoursBefore: number; finePercent: number };
 }
 
-const DAYS_OF_WEEK = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
-
 export class Tenant {
   private constructor(private props: TenantProps) {}
 
@@ -36,12 +34,13 @@ export class Tenant {
   get cancelPolicy(): TenantProps['cancelPolicy'] {
     return this.props.cancelPolicy;
   }
+  get timezone(): string {
+    return this.props.timezone;
+  }
 
   isPeakSlot(at: Date): boolean {
-    const dayIdx = at.getDay();
-    const day = DAYS_OF_WEEK[dayIdx];
-    if (!day) return false;
-    const hhmm = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+    const day = tzWeekday(at, this.props.timezone);
+    const hhmm = tzHHMM(at, this.props.timezone);
     return this.props.peakWindows.some((w) => w.day === day && hhmm >= w.from && hhmm < w.to);
   }
 

@@ -71,7 +71,7 @@ export class WalkInBookingUseCase {
 
     const slot = Slot.create(input.startAt, service.durationMinutes);
 
-    if (!isWithinWorkingHours(tenant.toJSON().workingHours, slot.startAt, service.durationMinutes)) {
+    if (!isWithinWorkingHours(tenant.toJSON().workingHours, slot.startAt, service.durationMinutes, tenant.timezone)) {
       throw new AppError({
         code: ErrorCode.BOOKING_OUTSIDE_WORKING_HOURS,
         message: 'Slot outside tenant working hours',
