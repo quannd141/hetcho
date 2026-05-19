@@ -19,6 +19,10 @@ export class InMemoryTenantRepository implements TenantRepository {
     this.bySlug.set(tenant.toJSON().slug, tenant);
   }
 
+  async findAll(): Promise<Tenant[]> {
+    return [...this.byId.values()];
+  }
+
   reset(): void {
     this.byId.clear();
     this.bySlug.clear();
