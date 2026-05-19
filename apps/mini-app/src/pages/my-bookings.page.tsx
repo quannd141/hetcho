@@ -85,7 +85,7 @@ function BookingCard({ booking }: { booking: MyBookingDto }) {
   const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
   return (
-    <Link to={`/my-bookings/${booking.bookingId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link to={`/my-bookings/${booking.bookingId}?slug=${DEFAULT_TENANT}`} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className="card" style={{ marginBottom: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>

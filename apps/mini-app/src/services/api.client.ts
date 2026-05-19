@@ -102,4 +102,27 @@ export const api = {
       `/public/tenants/${slug}/bookings/${bookingId}/confirm-mock`,
       { method: 'POST' },
     ),
+  bookingDetail: (slug: string, bookingId: string) =>
+    call<BookingDetailDto>(`/public/tenants/${slug}/bookings/${bookingId}`),
+  cancelBooking: (slug: string, bookingId: string) =>
+    call<{ bookingId: string; refundAmountVnd: number }>(
+      `/public/tenants/${slug}/bookings/${bookingId}`,
+      { method: 'DELETE' },
+    ),
 };
+
+export interface BookingDetailDto {
+  bookingId: string;
+  status: string;
+  startAt: string;
+  endAt: string;
+  durationMinutes: number;
+  serviceName: string;
+  servicePriceVnd: number;
+  staffName: string;
+  depositRequiredVnd: number;
+  depositPaidVnd: number;
+  finalPriceVnd: number | null;
+  isPeakSlot: boolean;
+  tenantName: string;
+}
