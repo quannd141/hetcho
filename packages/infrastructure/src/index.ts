@@ -11,3 +11,4 @@ export * from './mock/in-memory-review-repository.js';
 export * from './seed/demo-tenants.js';
 export * from './factory.js';
 export * from './drizzle/index.js';
+export * from './vnpay/index.js';
