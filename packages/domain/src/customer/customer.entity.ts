@@ -12,6 +12,7 @@ export interface CustomerProps {
   tier: CustomerTier;
   lifetimeSpendVnd: number;
   totalBookings: number;
+  lastVisitAt: Date | null;
 }
 
 /**
@@ -20,8 +21,8 @@ export interface CustomerProps {
 export class Customer {
   private constructor(private props: CustomerProps) {}
 
-  static create(props: CustomerProps): Customer {
-    return new Customer(props);
+  static create(props: Omit<CustomerProps, 'lastVisitAt'> & { lastVisitAt?: Date | null }): Customer {
+    return new Customer({ ...props, lastVisitAt: props.lastVisitAt ?? null });
   }
 
   get id(): CustomerId {
@@ -36,6 +37,9 @@ export class Customer {
   get lifetimeSpendVnd(): number {
     return this.props.lifetimeSpendVnd;
   }
+  get lastVisitAt(): Date | null {
+    return this.props.lastVisitAt;
+  }
 
   static computeTier(totalBookings: number, lifetimeSpendVnd: number): CustomerTier {
     if (totalBookings >= 50 && lifetimeSpendVnd >= 30_000_000) return 'vip';
@@ -47,6 +51,17 @@ export class Customer {
     this.props.totalBookings += 1;
     this.props.lifetimeSpendVnd += amountVnd;
     this.props.tier = Customer.computeTier(this.props.totalBookings, this.props.lifetimeSpendVnd);
+  }
+
+  /**
+   * Record a completed visit. Advances lastVisitAt monotonically — passing
+   * an earlier timestamp is ignored (idempotent for out-of-order completion
+   * events).
+   */
+  recordVisit(at: Date): void {
+    if (this.props.lastVisitAt === null || at.getTime() > this.props.lastVisitAt.getTime()) {
+      this.props.lastVisitAt = at;
+    }
   }
 
   toJSON(): CustomerProps {

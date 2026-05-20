@@ -16,6 +16,7 @@ export * from './package/consume-package-session.use-case.js';
 export * from './package/notify-expiring-packages.use-case.js';
 export * from './booking/realtime-broadcaster.js';
 export * from './booking/ports.js';
+export * from './customer/find-customers-for-recovery.use-case.js';
 export * from './tenant/create-tenant.use-case.js';
 export * from './tenant/add-service.use-case.js';
 export * from './tenant/add-staff.use-case.js';

@@ -28,6 +28,12 @@ export class CompleteBookingUseCase {
 
     await this.deps.unitOfWork.run(async (ctx) => {
       await ctx.bookings.save(booking);
+      const customerId = booking.toJSON().customerId;
+      const customer = await ctx.customers.findById(customerId, booking.tenantId);
+      if (customer) {
+        customer.recordVisit(at);
+        await ctx.customers.save(customer);
+      }
       await ctx.audit.log({
         tenantId: booking.tenantId,
         actorType: input.actorType,

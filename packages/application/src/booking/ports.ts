@@ -11,6 +11,8 @@ export interface ServiceRepository {
 export interface CustomerRepository {
   findById(id: CustomerId, tenantId: TenantId): Promise<Customer | null>;
   save(customer: Customer): Promise<void>;
+  /** All customers for a tenant. Sufficient at MVP scale; refine later. */
+  findByTenant?(tenantId: TenantId): Promise<Customer[]>;
 }
 
 export interface PaymentGateway {

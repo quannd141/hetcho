@@ -1,9 +1,9 @@
-# Night Shift Log — Run #7 (Sprint 5 mock-doable)
+# Night Shift Log — Run #8 (Sprint 6 mock-doable: Reminder + Recovery — F5)
 
 **Date**: 2026-05-20
-**Branch**: `night-shift/ui-demo-20260516` (continuation, 35 commits)
+**Branch**: `night-shift/ui-demo-20260516` (continuation, 36 commits)
 **Mode**: NIGHT_SHIFT_MODE=true (mock + local Postgres OK, no remote push, no live API)
-**Trigger**: user typed "next sprint" after Run #6
+**Trigger**: user typed "next sprint" after Run #7
 
 ## Budget
 - Max stories: 5
@@ -12,18 +12,17 @@
 
 ## Stories
 
-- [x] S1 Package + PackageUsage domain entities + repository ports → 14 entity tests
-- [x] S2 InMemoryPackageRepository + InMemoryPackageUsageRepository + 3 use cases (Buy/Consume/NotifyExpiring) → 11 use-case tests
-- [x] S3 Cron `/api/cron/package-expiring[?windowDays=7]` + container wiring
-- [ ] S4 Drizzle repos — **deferred** (existing customer_packages/package_usages schema needs 3 new columns + migration + integration tests; safer in daytime with founder review)
-- [x] (replacement) Self-contained sprint 5 slice without DB migration
+- [x] S1 `Customer.lastVisitAt` (nullable, monotonic) + `recordVisit(at)` + 4 new tests
+- [x] S2 `FindCustomersForRecoveryUseCase` (audit-event-driven, 30/60/90 ±1 day) + 5 use-case tests
+- [x] S3 `GET /api/cron/recovery[?buckets=30,60,90&toleranceDays=1]` cron route
+- [x] S4 Wire `customer.recordVisit(at)` into `CompleteBookingUseCase` (inside UoW, idempotent via monotonic guard)
+- [ ] S5 Idempotent reminders use case — **deferred** (existing `/api/cron/reminders` works; extracting to UC + idempotency via audit-lookup needs design call — keep as-is for now)
 
 ## Skipped
-- Drizzle PackageRepository (intentional defer)
-- Mini App progress bar UI (Sprint 7 polish per plan)
-- Auto tier recompute cron (Customer.recordBooking already auto-tiers per booking; daily recompute is a nice-to-have)
+- Drizzle migration for `last_visit_at` column on `customers` table — same defer reasoning as Run #7 (needs founder daytime review)
+- Reminder UC extraction (Sprint 7 polish)
 
 ## Result
-- 3/4 planned stories done (S4 deferred)
-- 183 tests pass (was 158) under TZ=UTC and TZ=Asia/Ho_Chi_Minh
+- 4/4 selected stories done (S5 explicitly out of scope tonight)
+- 183 → **192 tests pass** under both `TZ=UTC` and `TZ=Asia/Ho_Chi_Minh`
 - 1 atomic night-shift commit
