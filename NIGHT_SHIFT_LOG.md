@@ -1,29 +1,27 @@
-# Night Shift Log — Run #5 (Sprint 4+ tech debt)
+# Night Shift Log — Run #6 (Sprint 4 mock-doable)
 
 **Date**: 2026-05-20
 **Branch**: `night-shift/ui-demo-20260516` (continuation)
-**Mode**: NIGHT_SHIFT_MODE=true (mock + local Postgres OK)
+**Mode**: NIGHT_SHIFT_MODE=true (mock + local Postgres OK, no remote push, no live API)
+**Trigger**: user typed "next sprint" after Run #5
 
 ## Budget
-- Max stories: 6
-- Max time/story: 25 min
+- Max stories: 4
+- Max time/story: 30 min
 - Max retries: 3
 
 ## Stories
 
-- [x] S1 Fix 4 TZ-fragile tests in demo-tenants.test.ts → fixed at domain layer via shared tz helpers (commit 24fec7c)
-- [x] S2 Unit tests for GetAvailabilitySlotsUseCase → 9 tests (commit d71fd62)
-- [x] S3 Working hours validation → merged into S1
-- [x] S4 Drizzle repository integration tests (local Postgres) → 7 tests gated by env (commit ba2fc2f)
-- [x] S5 Review → proper domain entity + Drizzle repo → entity+port+InMem+Drizzle+migration+route refactor (commit 793a48b)
-- [x] S6 Webhook idempotency tests (mock VNPay retry) → 7 tests (commit 3ba3737)
+- [x] S1 AutoReleaseStalePendingUseCase + cron `/api/cron/auto-release` → 6 tests (commit 0721b88)
+- [x] S2 AutoMarkNoShowUseCase + cron `/api/cron/no-show` → 6 tests (commit 0721b88, bundled)
+- [x] S3 VNPay HMAC-SHA512 signature + VnpayPaymentGateway adapter → 19 tests (commit 22b8c0f)
 
-## Skipped (need PH-002/003)
-- Real Zalo OA wire
-- Real VNPay webhook
-- Production deploy
+## Skipped (need founder credentials)
+- VNPay sandbox real-wire (PH-003) — adapter ready, container still on MockPaymentGateway
+- Google Calendar sync (PH-007) — needs OAuth client
+- Supabase DrizzleRepo swap (PH-001) — already swappable via USE_REAL_DB env
 
 ## Result
-- 6/6 stories done
-- 127 tests pass (was 104) under TZ=UTC and TZ=Asia/Ho_Chi_Minh
-- 5 atomic night-shift commits
+- 3/3 stories done
+- 158 tests pass (was 127) under TZ=UTC and TZ=Asia/Ho_Chi_Minh
+- 2 atomic night-shift commits
