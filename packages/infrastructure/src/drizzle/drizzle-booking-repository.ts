@@ -1,4 +1,4 @@
-import { and, eq, gte, lt, ne } from 'drizzle-orm';
+import { and, eq, gte, isNull, lt, ne } from 'drizzle-orm';
 import { Booking, Slot, type BookingProps, type BookingStatus } from '@hetcho/domain';
 import {
   BookingId,
@@ -56,6 +56,35 @@ export class DrizzleBookingRepository implements BookingRepository {
           eq(bookings.tenantId, tenantId),
           gte(bookings.startAt, dayStart),
           lt(bookings.startAt, dayEnd),
+        ),
+      );
+    return rows.map((r) => this.toDomain(r));
+  }
+
+  async findStalePending(tenantId: TenantId, olderThan: Date): Promise<Booking[]> {
+    const rows = await this.db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.tenantId, tenantId),
+          eq(bookings.status, 'pending'),
+          lt(bookings.createdAt, olderThan),
+        ),
+      );
+    return rows.map((r) => this.toDomain(r));
+  }
+
+  async findUnattendedConfirmed(tenantId: TenantId, startedBefore: Date): Promise<Booking[]> {
+    const rows = await this.db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.tenantId, tenantId),
+          eq(bookings.status, 'confirmed'),
+          lt(bookings.startAt, startedBefore),
+          isNull(bookings.checkedInAt),
         ),
       );
     return rows.map((r) => this.toDomain(r));

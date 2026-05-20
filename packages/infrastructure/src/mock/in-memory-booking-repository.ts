@@ -38,6 +38,24 @@ export class InMemoryBookingRepository implements BookingRepository {
     });
   }
 
+  async findStalePending(tenantId: TenantId, olderThan: Date): Promise<Booking[]> {
+    return [...this.store.values()].filter((b) => {
+      if (b.tenantId !== tenantId) return false;
+      if (b.status !== 'pending') return false;
+      return b.toJSON().createdAt < olderThan;
+    });
+  }
+
+  async findUnattendedConfirmed(tenantId: TenantId, startedBefore: Date): Promise<Booking[]> {
+    return [...this.store.values()].filter((b) => {
+      if (b.tenantId !== tenantId) return false;
+      if (b.status !== 'confirmed') return false;
+      const p = b.toJSON();
+      if (p.checkedInAt !== null) return false;
+      return p.slot.startAt < startedBefore;
+    });
+  }
+
   async save(booking: Booking): Promise<void> {
     this.store.set(booking.id, booking);
   }

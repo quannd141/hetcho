@@ -8,6 +8,8 @@ export * from './booking/mark-deposit-paid.use-case.js';
 export * from './booking/list-bookings-for-date.use-case.js';
 export * from './booking/get-availability-slots.use-case.js';
 export * from './booking/walk-in-booking.use-case.js';
+export * from './booking/auto-release-stale-pending.use-case.js';
+export * from './booking/auto-mark-no-show.use-case.js';
 export * from './booking/realtime-broadcaster.js';
 export * from './booking/ports.js';
 export * from './tenant/create-tenant.use-case.js';
