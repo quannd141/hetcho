@@ -8,3 +8,7 @@ export * from './tenant/tenant.entity.js';
 export * from './tenant/working-hours.vo.js';
 export * from './review/review.entity.js';
 export * from './review/review.repository.js';
+export * from './package/package.entity.js';
+export * from './package/package.repository.js';
+export * from './package/package-usage.entity.js';
+export * from './package/package-usage.repository.js';

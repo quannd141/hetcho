@@ -8,6 +8,8 @@ export * from './mock/in-memory-service-repository.js';
 export * from './mock/in-memory-customer-repository.js';
 export * from './mock/in-memory-staff-repository.js';
 export * from './mock/in-memory-review-repository.js';
+export * from './mock/in-memory-package-repository.js';
+export * from './mock/in-memory-package-usage-repository.js';
 export * from './seed/demo-tenants.js';
 export * from './factory.js';
 export * from './drizzle/index.js';

@@ -1,10 +1,17 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import type { Tenant, BookingRepository, ReviewRepository } from '@hetcho/domain';
+import type {
+  Tenant,
+  BookingRepository,
+  PackageRepository,
+  PackageUsageRepository,
+  ReviewRepository,
+} from '@hetcho/domain';
 import type { TenantId } from '@hetcho/shared';
 import type {
   BookingDependencies,
   CustomerRepository,
+  PackageDependencies,
   ServiceWriteRepository,
   StaffWriteRepository,
   TenantWriteRepository,
@@ -19,6 +26,8 @@ import {
   DrizzleTenantRepository,
   InMemoryBookingRepository,
   InMemoryCustomerRepository,
+  InMemoryPackageRepository,
+  InMemoryPackageUsageRepository,
   InMemoryReviewRepository,
   InMemoryServiceRepository,
   InMemoryStaffRepository,
@@ -42,11 +51,14 @@ interface Container {
   customers: CustomerRepository & { findByPhoneHash(tenantId: TenantId, hash: string): Promise<unknown> };
   bookings: BookingRepository;
   reviews: ReviewRepository;
+  packages: PackageRepository;
+  packageUsages: PackageUsageRepository;
   payment: MockPaymentGateway;
   notification: MockNotificationSender;
   audit: MockAuditLogger;
   broadcaster: MockRealtimeBroadcaster;
   bookingDeps: BookingDependencies;
+  packageDeps: PackageDependencies;
   unitOfWork: UnitOfWork;
   seeded: Promise<void>;
   driver: 'mock' | 'drizzle';
@@ -110,6 +122,10 @@ function build(): Container {
     }).then(() => undefined);
   }
 
+  // Packages: in-memory only for now (Drizzle deferred until schema migration).
+  const packages: PackageRepository = new InMemoryPackageRepository();
+  const packageUsages: PackageUsageRepository = new InMemoryPackageUsageRepository();
+
   const payment = new MockPaymentGateway();
   const notification = new MockNotificationSender();
   const audit = new MockAuditLogger();
@@ -135,6 +151,16 @@ function build(): Container {
     generateId: () => randomUUID(),
   };
 
+  const packageDeps: PackageDependencies = {
+    tenants,
+    customers,
+    packages,
+    packageUsages,
+    audit,
+    now: () => new Date(),
+    generateId: () => randomUUID(),
+  };
+
   console.log(`[container] driver=${driver}`);
 
   return {
@@ -144,11 +170,14 @@ function build(): Container {
     customers,
     bookings,
     reviews,
+    packages,
+    packageUsages,
     payment,
     notification,
     audit,
     broadcaster,
     bookingDeps,
+    packageDeps,
     unitOfWork,
     seeded,
     driver,
