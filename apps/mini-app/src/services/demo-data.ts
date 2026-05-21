@@ -37,10 +37,21 @@ export interface PackageProgressVM {
   id: string;
   name: string;
   tenantName: string;
+  tenantSlug: string;
   totalSessions: number;
   remaining: number;
   expiresAt: string;
   serviceName: string;
+  serviceId: string;
+  purchasedAt: string;
+  pricePaidVnd: number;
+}
+
+export interface PackageUsageEntryVM {
+  bookingId: string;
+  date: string;
+  serviceName: string;
+  staffName: string;
 }
 
 interface TenantVM {
@@ -153,12 +164,55 @@ export function getMyPackages(): PackageProgressVM[] {
   return [
     {
       id: 'pk-1', name: 'Trắng da chuyên sâu 10 buổi',
-      tenantName: 'Mai Skin Spa',
+      tenantName: 'Mai Skin Spa', tenantSlug: 'mai-spa',
       totalSessions: 10, remaining: 4,
       expiresAt: '2026-08-01',
-      serviceName: 'Treatment trắng da',
+      serviceName: 'Treatment trắng da', serviceId: 'sv-1',
+      purchasedAt: '2026-02-15', pricePaidVnd: 6_800_000,
+    },
+    {
+      id: 'pk-2', name: 'Massage trị liệu 5 buổi',
+      tenantName: 'Mai Skin Spa', tenantSlug: 'mai-spa',
+      totalSessions: 5, remaining: 5,
+      expiresAt: '2026-09-12',
+      serviceName: 'Massage trị liệu', serviceId: 'sv-2',
+      purchasedAt: '2026-05-12', pricePaidVnd: 2_200_000,
+    },
+    {
+      id: 'pk-3', name: 'Cắt + Gội combo 6 lần',
+      tenantName: 'Salon Hằng Hair', tenantSlug: 'salon-hang',
+      totalSessions: 6, remaining: 1,
+      expiresAt: '2026-06-30',
+      serviceName: 'Cắt + Gội + Sấy', serviceId: 'sv-1',
+      purchasedAt: '2025-12-30', pricePaidVnd: 1_200_000,
     },
   ];
+}
+
+export function getPackageById(id: string): PackageProgressVM | undefined {
+  return getMyPackages().find((p) => p.id === id);
+}
+
+export function getPackageUsages(packageId: string): PackageUsageEntryVM[] {
+  const fixtures: Record<string, PackageUsageEntryVM[]> = {
+    'pk-1': [
+      { bookingId: 'bkp-1', date: '2026-05-02', serviceName: 'Treatment trắng da', staffName: 'KTV Mai' },
+      { bookingId: 'bkp-2', date: '2026-04-15', serviceName: 'Treatment trắng da', staffName: 'KTV Mai' },
+      { bookingId: 'bkp-3', date: '2026-03-28', serviceName: 'Treatment trắng da', staffName: 'KTV Hân' },
+      { bookingId: 'bkp-4', date: '2026-03-10', serviceName: 'Treatment trắng da', staffName: 'KTV Mai' },
+      { bookingId: 'bkp-5', date: '2026-02-22', serviceName: 'Treatment trắng da', staffName: 'KTV Mai' },
+      { bookingId: 'bkp-6', date: '2026-02-15', serviceName: 'Treatment trắng da', staffName: 'KTV Mai' },
+    ],
+    'pk-2': [],
+    'pk-3': [
+      { bookingId: 'bks-1', date: '2026-05-15', serviceName: 'Cắt + Gội + Sấy', staffName: 'Stylist Tú' },
+      { bookingId: 'bks-2', date: '2026-04-30', serviceName: 'Cắt + Gội + Sấy', staffName: 'Hằng (chủ)' },
+      { bookingId: 'bks-3', date: '2026-03-20', serviceName: 'Cắt + Gội + Sấy', staffName: 'Stylist Tú' },
+      { bookingId: 'bks-4', date: '2026-02-12', serviceName: 'Cắt + Gội + Sấy', staffName: 'Stylist Ngọc' },
+      { bookingId: 'bks-5', date: '2026-01-08', serviceName: 'Cắt + Gội + Sấy', staffName: 'Hằng (chủ)' },
+    ],
+  };
+  return fixtures[packageId] ?? [];
 }
 
 export function generateSlots(date: string): Array<{ time: string; available: boolean; isPeak: boolean }> {

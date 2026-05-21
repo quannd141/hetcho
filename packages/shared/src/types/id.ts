@@ -11,6 +11,7 @@ export type PackageId = Brand<string, 'PackageId'>;
 export type PackageUsageId = Brand<string, 'PackageUsageId'>;
 export type TransactionId = Brand<string, 'TransactionId'>;
 export type ReviewId = Brand<string, 'ReviewId'>;
+export type NotificationTemplateId = Brand<string, 'NotificationTemplateId'>;
 
 export const TenantId = (v: string): TenantId => v as TenantId;
 export const UserId = (v: string): UserId => v as UserId;
@@ -22,3 +23,4 @@ export const PackageId = (v: string): PackageId => v as PackageId;
 export const PackageUsageId = (v: string): PackageUsageId => v as PackageUsageId;
 export const TransactionId = (v: string): TransactionId => v as TransactionId;
 export const ReviewId = (v: string): ReviewId => v as ReviewId;
+export const NotificationTemplateId = (v: string): NotificationTemplateId => v as NotificationTemplateId;

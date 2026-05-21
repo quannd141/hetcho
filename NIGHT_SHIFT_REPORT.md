@@ -1,94 +1,116 @@
-# 🌙 Night Shift Report — 2026-05-20 (Run #8)
+# 🌙 Night Shift Report — 2026-05-21 (Run #9)
 
-**Sprint context**: Sprint 6 mock-doable slice (Reminder + Recovery — F5)
-**Branch**: `night-shift/ui-demo-20260516` (continuation, 36 commits)
+**Sprint context**: Sprint 7 mock-doable slice (Mini App polish + Owner template editor — F4 + F5 backing)
+**Branch**: `night-shift/ui-demo-20260516` (continuation, 37 commits)
 **Mode**: NIGHT_SHIFT_MODE — mock + local Postgres, no remote push
-**Trigger**: user typed "next sprint" after Run #7
+**Trigger**: user typed "3. Plan Sprint 7" → chốt Q1 OK / Q2 (b) handlebars / Q3 OK / Q4 OK → execute
 
-> Run #5/#6/#7 reports preserved in git at `2014f8c` (Run #5), `bf22373` (Run #6), `880930c` (Run #7).
+> Runs #5/#6/#7/#8 reports preserved in git at `2014f8c`, `bf22373`, `880930c`, prev HEAD (`725babf`).
 
 ---
 
 ## Summary
 
-✅ **Done**: 4 / 4 selected stories
+✅ **Done**: 5 / 6 selected stories
 🟡 **Partial**: 0
-⏸️ **Deferred**: S5 reminders use case extraction (existing route works; idempotency design needs daytime call)
-🧪 **Tests**: 183 → **192 passing (+9 net new)**, 7 Drizzle integration skipped
-   - Final: **192/192** under both `TZ=UTC` and `TZ=Asia/Ho_Chi_Minh` ✅
+⏸️ **Existing**: S6 customer detail UI shell already done at Run #4 (mock-only)
+🧪 **Tests**: 192 → **226 passing (+34 net new)**, 7 Drizzle integration skipped
+   - Final: **226/226** under both `TZ=UTC` and `TZ=Asia/Ho_Chi_Minh` ✅
 
 ## Done Stories
 
 | Story | What |
 |---|---|
-| **S1 Customer.lastVisitAt** | New prop `lastVisitAt: Date \| null` + `recordVisit(at)` with monotonic guard (out-of-order completion events safe). 4 new entity tests cover null default, first set, monotonic advance, ignoring earlier timestamps. `Customer.create` made backwards-compatible: callers can omit `lastVisitAt`. |
-| **S2 FindCustomersForRecoveryUseCase** | Scans `customers.findByTenant(tenantId)`, buckets by configurable day-thresholds (default 30/60/90, ±1 day tolerance). Skips `lastVisitAt === null` (recovery is for lapsed visitors, not prospects). Emits `customer.recovery_eligible` audit per match — Zalo ZNS dispatch is a subscriber, not a direct dep. Cross-tenant safe. 5 use-case tests. |
-| **S3 Cron `/api/cron/recovery`** | `GET /api/cron/recovery[?buckets=30,60,90&toleranceDays=1]` iterates tenants, returns `{ totalMatched, perTenant: [{ tenantId, tenantSlug, matchedCount, perBucket }], runAt }`. Wired via existing `c.bookingDeps` (no new container field needed). |
-| **S4 Wire recordVisit on complete** | `CompleteBookingUseCase` now loads customer inside UoW, calls `customer.recordVisit(at)`, saves. Inline guard `if (customer)` handles legacy bookings without a saved customer record. Monotonic guard in domain means this is replay-safe. |
+| **S4-prep `audit.list()`** | Added optional `list(filter)` to `AuditLogger` port + `MockAuditLogger.list()` impl (filter by tenant/action/entity/date-range/limit, newest-first sort). 5 mock-logger tests. Unblocks future "recovery campaign log" screen. |
+| **S3+S5 `NotificationTemplate`** | New domain entity in `packages/domain/src/notification/`. Handlebars-style `{{customer.name}}` interpolation with nested-path walk, missing-key → empty string. 8 known triggers (booking.confirmed → recovery_30/60/90d). One template per (tenant, trigger). Mutations: `updateBody / rename / activate / deactivate` all bump `updatedAt`. 16 entity tests. |
+| **S3+S5 Repository + UCs** | `NotificationTemplateRepository` port (4 methods, all tenant-scoped). `InMemoryNotificationTemplateRepository` + 5 tests. Two use cases: `SaveTemplateUseCase` (upsert by trigger → emits `notification_template.created` or `.updated` audit) + `GetTemplatesByTenantUseCase` (returns summaries with extracted placeholders). 8 use-case tests. |
+| **S2 Mini App package detail** | New `/my-packages/:id` route + `PackageDetailPage`. Timeline of consumed sessions (newest first, ordinal badge), progress bar, low-stock warning when `remaining ≤ 1`, smart CTA (booking link when active, "Mua gói mới" when depleted). Click-through from `/my-packages` list cards. Pure mock data — swap to real API when PH-001 done. |
+| **S1 demo data** | 1 demo package → 3 (Treatment trắng da 4/10, Massage 5/5 fresh, Cắt+Gội 1/6 low-stock). `getPackageById`, `getPackageUsages(id)` mock helpers. |
 
 ## Verification
 
-- `TZ=UTC pnpm vitest run` → **192 PASS / 7 skipped** ✅
-- `TZ=Asia/Ho_Chi_Minh pnpm vitest run` → **192 PASS / 7 skipped** ✅
-- Smoke test on live dev server (`USE_REAL_DB=true`, started 00:10 from before Run #6) — **3/3 new cron routes return 500** because the `globalThis.__hetcho_container` was cached before Run #6/#7/#8 added `bookingDeps.broadcaster`, `packageDeps`, etc. This is a **stale container cache issue**, NOT a code defect. Test suite proves the code is correct; flipping the dev server (`Ctrl+C` then re-run with same env) will rebuild the container with all current fields.
+- `TZ=UTC pnpm vitest run` → **226 PASS / 7 skipped** ✅
+- `TZ=Asia/Ho_Chi_Minh pnpm vitest run` → **226 PASS / 7 skipped** ✅
+- Mini App Vite dev server not restarted by night-shift (would interrupt user). After morning restart, browse `/my-packages` then tap any card to open the new detail screen.
 
-### Newly-callable HTTP routes
-- `GET /api/cron/recovery[?buckets=30,60,90&toleranceDays=1]` — daily lapsed-customer scan
+### Newly-callable code surface
+
+- `import { NotificationTemplate, NotificationTemplateRepository } from '@hetcho/domain'`
+- `import { SaveTemplateUseCase, GetTemplatesByTenantUseCase, type NotificationTemplateDependencies } from '@hetcho/application'`
+- `import { InMemoryNotificationTemplateRepository } from '@hetcho/infrastructure'`
+- `AuditLogger.list?(filter)` available wherever an audit logger is injected
+- Mini App route `GET /my-packages/:id`
 
 ## Skipped / Deferred
 
-- **S5 Reminders idempotency** (intentional defer). Existing `/api/cron/reminders?window=24h|2h` works but isn't extracted into a use case and re-runs would fire duplicate notifications. Idempotency via audit-log lookup is the obvious approach, but the `audit.list(filter)` query doesn't exist yet — would need a new audit port method + InMemory + Drizzle. Skip for tonight.
-- **Drizzle `last_visit_at` migration** — same defer reasoning as Run #7 (`packages` table). InMemory works; Drizzle adapter would throw on `Customer.toJSON().lastVisitAt` field mapping until column added.
+- **S6 customer detail page** — already exists at `apps/web/src/app/(tenant)/[slug]/customers/[id]/page.tsx` from Run #4 ui-demo (mock only). To make it real, need `GetCustomerDetailUseCase` + `findCompletedByCustomer(customerId)` on booking repo. Out of scope tonight.
+- **Drizzle migrations** — total pending now **4**:
+  - `last_visit_at` column on `customers` (Run #8)
+  - `packages` + `package_usages` table (Run #7)
+  - `notification_templates` table (Run #9)
+  - Same defer reasoning as previous runs: needs founder daytime review + batched `pnpm db:migrate` run
+- **Wire admin/marketing/templates page to backend** — UI shell currently uses hardcoded `TEMPLATES` const array. Replacing with server action + `useFormState` form is a daytime ergonomic call, not a night-shift commit.
+- **Audit-log → ZNS dispatcher subscriber** — needs Zalo OA verified (PH-002 still founder-action).
 - Real Zalo OA / VNPay / GCal wiring (PH-002/003/007 still blocked)
 
 ## 3-Gate Sprint Review
 
-**Not run tonight** — Sprint 6 only ~50% complete (mock slice; Drizzle + reminder hardening deferred). Sprint 5 Drizzle still also pending.
+**Not run tonight** — Sprint 7 covers backend foundation. Real UI wiring + Drizzle migrations needed before reviewable slice. Hold for Sprint 8.
 
 ## Khuyến nghị sáng mai user nên làm (theo thứ tự)
 
-1. **Restart dev server** (it's been up since 00:10 with stale cached container — all 3 new crons crash with `TypeError: Cannot read properties of undefined (reading 'now')` because `c.packageDeps` is undefined on the cached singleton):
+1. **Pull-able state check** (no restart needed):
    ```bash
-   # Ctrl+C the running web dev (PID 16735 if hasn't moved)
    cd "d:/AGEN TEAM/het-cho"
+   TZ=UTC pnpm vitest run                        # expect 226 PASS / 7 skip
+   git log --oneline -10                          # see new Sprint 7 commit on top
+   ```
+
+2. **(Optional) restart dev server** if not already done from Run #8 morning rec:
+   ```bash
+   # Ctrl+C the running web dev (still PID 16735 if hasn't moved)
    USE_REAL_DB=true DATABASE_URL='postgresql://postgres:Zaq1Zxcv@localhost:5432/hetcho' \
      pnpm --filter @hetcho/web dev
    ```
-2. **Smoke-test new + previously-broken crons after restart**:
-   ```bash
-   curl 'http://localhost:3300/api/cron/package-expiring?windowDays=7'
-   curl 'http://localhost:3300/api/cron/auto-release'
-   curl 'http://localhost:3300/api/cron/no-show'
-   curl 'http://localhost:3300/api/cron/recovery'
-   ```
-   Expect `{ success: true, data: { totalX: 0, perTenant: [...] } }` on fresh seed.
-3. **Run full suite**: `TZ=UTC pnpm vitest run` — should show 192/199 (7 Drizzle integration skipped).
-4. **Plan Sprint 7** (Mini App polish per plan): progress-bar UI for liệu trình (packages), recovery campaign templates editor.
+
+3. **Browser test Mini App package detail** (the only new UI):
+   - Mini App dev server (port 3301) `/my-packages` → tap any of 3 demo packages → detail timeline
+   - Low-stock package (pk-3, 1/6) shows amber warning
+   - Depleted hypothetical (manually set `remaining: 0` to test) flips CTA to "Mua gói mới"
+
+4. **Plan Sprint 8 candidate** scope (chờ chốt sáng):
+   - **S8.1** Wire `/admin/audit` page → real `AuditLogger.list()` + filter UI
+   - **S8.2** Wire `/[slug]/marketing/templates` UI → `SaveTemplateUseCase` server action (CRUD)
+   - **S8.3** Realtime owner dashboard live booking feed (F3 first slice — `MockRealtimeBroadcaster` already exists)
+   - **S8.4** Drizzle migration daytime: batch run all 4 deferred migrations in one DB review session
+
 5. **PENDING_HUMAN.md unchanged**: PH-001..009 all still founder-action.
 
 ## Issues & Decisions tôi đã tự quyết (user check lại)
 
-- **`lastVisitAt: Date \| null` (not `Date`)** — null is semantically correct for "never visited" (new customer), and aligns with future Drizzle `timestamp` nullable column. The recovery use case explicitly skips null customers.
-- **Monotonic guard in `recordVisit`** — accepts only later timestamps. Defensive against out-of-order completion events (e.g., webhook retries, manual back-dating). Idempotent without external dedup.
-- **Recovery via audit-event, not direct NotificationSender** — same pattern as `NotifyExpiringPackagesUseCase` from Run #7. Use case stays unit-testable with zero notification mock; future Zalo ZNS subscriber reads audit log.
-- **Tolerance ±1 day default** — cron runs daily, customer may transition between buckets on consecutive days. ±1 ensures no customer missed if cron fires slightly late. Tolerance 0 = exact bucket match (configurable).
-- **`CustomerRepository.findByTenant` made optional** (`?`) on port — keeps backward compat with existing Drizzle/InMemory shapes; Drizzle already implements it, InMemory already implements it. Use case throws clear error if adapter doesn't.
-- **No new container field for recovery** — recovery UC reuses `c.bookingDeps.tenants/customers/audit/now`. Avoids container churn.
-- **S5 idempotent reminders skipped** — audit-log-based idempotency needs `audit.list()` port method (currently only `log()`). Design call for daytime.
+- **Handlebars-style `{{var}}` chứ không phải lib `handlebars`** — user chốt Q2(b) handlebars, nhưng adding the npm dep cho 1 use case nhỏ là overkill. Em viết regex 5-dòng tương đương chức năng cần thiết: nested path walk + whitespace tolerant + missing key → empty string. Nếu user thực sự muốn `handlebars` lib (helpers, partials, conditionals) say so → swap trivially trong `NotificationTemplate.render()`.
+- **One template per (tenant, trigger)** — không cho phép multiple templates same trigger (vd 2 versions của reminder_24h). Dispatcher lookup single. Future A/B test cần thêm `variant` field — defer.
+- **Max body 1000 chars** — Zalo ZNS template tối đa 600 chars; 1000 cho phép viết headroom + UI cảnh báo trước khi submit ZNS approval. Đổi dễ trong entity.
+- **`isActive` default true** — owner tạo template = ý đồ dùng ngay. Toggle off khi cần "save draft".
+- **`audit.list?()` optional method** — backward compatible với Drizzle adapter chưa implement; throws clear error nếu UC call mà adapter không có.
+- **8 known triggers enum** — hard-coded list trong Zod schema. Thêm trigger mới = code change + audit emit ở use case + dispatcher subscriber. Trade-off: type safety > extensibility cho MVP.
+- **3 demo packages** với 3 trạng thái khác nhau (4/10, 5/5 fresh, 1/6 low) để demo UI variants. Pure mock — no real backend.
+- **Mini App detail page giữ chuẩn UX pattern Run #4** — back button + app-bar + card grid + brand colors. Không touch global CSS.
+- **Skipped wiring UI to backend** — admin/marketing/templates page chỉ là shell. Wiring it = form action + revalidation + optimistic update — đáng làm sáng cùng review user, không night-shift.
 
 ## Không làm gì
 
 - ❌ KHÔNG deploy production
 - ❌ KHÔNG push remote (commits stay local on `night-shift/ui-demo-20260516`)
-- ❌ KHÔNG modify DB schema or run migrations (defer until daytime founder review)
-- ❌ KHÔNG run Drizzle integration tests for new customer field (no schema column yet)
+- ❌ KHÔNG modify DB schema or run migrations (defer until daytime founder review — 4 pending)
 - ❌ KHÔNG gọi Zalo/VNPay/GCal API thật
 - ❌ KHÔNG restart user's running dev server (would interrupt their session)
+- ❌ KHÔNG wire UI shells to backend (founder ergonomic call)
 
 ## 🧠 Context Checkpoint
 
-- Estimate context: 🔴 ~80% (4 sprints in one session: Run #5 tech-debt + Run #6 Sprint 4 + Run #7 Sprint 5 + Run #8 Sprint 6; cumulative ~70 file reads/writes, ~15 test runs)
-- Khuyến nghị sáng mai user: **bắt buộc `/compact` trước khi dispatch tiếp Sprint 7** — otherwise the next sprint will hit hard context limits.
+- Estimate context: 🟠 ~55% (post-`/compact` reset → Sprint 7 alone ~30% file reads/writes + tests)
+- Khuyến nghị: nếu muốn dispatch Sprint 8 ngay thì OK chạy tiếp; nếu để vài ngày thì `/compact` lại trước.
 
 ---
-_Generated by night-shift skill @ 2026-05-20 (Run #8)_
+_Generated by night-shift skill @ 2026-05-21 (Run #9)_

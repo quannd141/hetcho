@@ -12,3 +12,5 @@ export * from './package/package.entity.js';
 export * from './package/package.repository.js';
 export * from './package/package-usage.entity.js';
 export * from './package/package-usage.repository.js';
+export * from './notification/notification-template.entity.js';
+export * from './notification/notification-template.repository.js';

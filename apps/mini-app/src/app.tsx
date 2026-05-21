@@ -6,6 +6,7 @@ import { ConfirmPage } from './pages/confirm.page.js';
 import { MyBookingsPage } from './pages/my-bookings.page.js';
 import { BookingDetailPage } from './pages/booking-detail.page.js';
 import { MyPackagesPage } from './pages/my-packages.page.js';
+import { PackageDetailPage } from './pages/package-detail.page.js';
 import { ProfilePage } from './pages/profile.page.js';
 import { LoginPage } from './pages/login.page.js';
 import { LoginOtpPage } from './pages/login-otp.page.js';
@@ -26,6 +27,7 @@ export function App() {
         <Route path="/my-bookings/:id" element={<BookingDetailPage />} />
         <Route path="/my-bookings/:id/review" element={<ReviewPage />} />
         <Route path="/my-packages" element={<MyPackagesPage />} />
+        <Route path="/my-packages/:id" element={<PackageDetailPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/tenants/salon-hang" />} />
       </Routes>

@@ -1,9 +1,9 @@
-import type { AuditLogger } from '@hetcho/application';
-import { logger } from '@hetcho/shared';
+import type { AuditEntryView, AuditListFilter, AuditLogger } from '@hetcho/application';
+import { type TenantId, logger } from '@hetcho/shared';
 
 interface AuditEntry {
   tenantId: string;
-  actorType: string;
+  actorType: 'customer' | 'owner' | 'staff' | 'system';
   actorId?: string;
   action: string;
   entity: string;
@@ -31,6 +31,29 @@ export class MockAuditLogger implements AuditLogger {
     const entry: AuditEntry = { ...input, createdAt: new Date() };
     this.events.push(entry);
     logger.info('[AUDIT]', { ...entry });
+  }
+
+  async list(filter: AuditListFilter): Promise<AuditEntryView[]> {
+    const limit = filter.limit ?? 200;
+    const matches = this.events.filter((e) => {
+      if (e.tenantId !== filter.tenantId) return false;
+      if (filter.action && e.action !== filter.action) return false;
+      if (filter.entity && e.entity !== filter.entity) return false;
+      if (filter.from && e.createdAt < filter.from) return false;
+      if (filter.to && e.createdAt > filter.to) return false;
+      return true;
+    });
+    matches.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return matches.slice(0, limit).map((e) => ({
+      tenantId: e.tenantId as TenantId,
+      actorType: e.actorType,
+      ...(e.actorId !== undefined ? { actorId: e.actorId } : {}),
+      action: e.action,
+      entity: e.entity,
+      entityId: e.entityId,
+      ...(e.payload !== undefined ? { payload: e.payload } : {}),
+      createdAt: e.createdAt,
+    }));
   }
 
   reset(): void {

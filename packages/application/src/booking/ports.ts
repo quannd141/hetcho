@@ -35,6 +35,26 @@ export interface NotificationSender {
   }): Promise<void>;
 }
 
+export interface AuditEntryView {
+  tenantId: TenantId;
+  actorType: 'customer' | 'owner' | 'staff' | 'system';
+  actorId?: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  payload?: Record<string, unknown>;
+  createdAt: Date;
+}
+
+export interface AuditListFilter {
+  tenantId: TenantId;
+  action?: string;
+  entity?: string;
+  from?: Date;
+  to?: Date;
+  limit?: number;
+}
+
 export interface AuditLogger {
   log(input: {
     tenantId: TenantId;
@@ -45,6 +65,8 @@ export interface AuditLogger {
     entityId: string;
     payload?: Record<string, unknown>;
   }): Promise<void>;
+  /** Tenant-scoped query, newest first. Optional to keep older adapters compiling. */
+  list?(filter: AuditListFilter): Promise<AuditEntryView[]>;
 }
 
 export interface UnitOfWork {
